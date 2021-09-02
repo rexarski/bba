@@ -32,3 +32,6 @@ Temporary Items
 
 # End of https://www.toptal.com/developers/gitignore/api/macos
 n
+.idea/vcs.xml
+.idea/rqiu.georgetown.domains.iml
+.idea/modules.xml

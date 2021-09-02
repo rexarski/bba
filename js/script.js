@@ -1,90 +1,123 @@
-(function ($) { // Begin jQuery
-  $(function () { // DOM ready
-    // If a link has a dropdown, add sub menu toggle.
-    $('nav ul li a:not(:only-child)').click(function (e) {
-      $(this).siblings('.nav-dropdown').toggle();
-      // Close one dropdown when selecting another
-      $('.nav-dropdown').not($(this).siblings()).hide();
-      e.stopPropagation();
+// === Vars ===
+
+const elementsToObserve = document.querySelectorAll('section[id]'),
+    visibleClass = 'visible',
+    nav = document.querySelector('nav'),
+    navPath = nav.querySelector('svg path'),
+    navListItems = [...nav.querySelectorAll('li')],
+    navItems = navListItems.map(listItem => {
+
+        const anchor = listItem.querySelector('a'),
+            targetID = anchor && anchor.getAttribute('href').slice(1),
+            target = document.getElementById(targetID);
+
+        return {
+            listItem,
+            anchor,
+            target
+        };
+
+    })
+    .filter(item => item.target);
+
+// === Functions ===
+
+function drawPath() {
+
+    let path = [],
+        pathIndent;
+
+    navItems.forEach((item, i) => {
+        const x = item.anchor.offsetLeft - 5,
+            y = item.anchor.offsetTop,
+            height = item.anchor.offsetHeight;
+
+        if (i === 0) {
+
+            path.push('M', x, y, 'L', x, y + height);
+            item.pathStart = 0;
+
+        } else {
+
+            if (pathIndent !== x)
+                path.push('L', pathIndent, y);
+
+            path.push('L', x, y);
+
+            navPath.setAttribute('d', path.join(' '));
+            item.pathStart = navPath.getTotalLength() || 0;
+            path.push('L', x, y + height);
+        }
+
+        pathIndent = x;
+        navPath.setAttribute('d', path.join(' '));
+        item.pathEnd = navPath.getTotalLength();
     });
-    // Clicking away from dropdown will remove the dropdown class
-    $('html').click(function () {
-      $('.nav-dropdown').hide();
+}
+
+function syncPath() {
+
+    const someElsAreVisible = () =>
+        nav.querySelectorAll(`.${visibleClass}`).length > 0,
+        thisElIsVisible = el =>
+        el.classList.contains(visibleClass),
+        pathLength = navPath.getTotalLength();
+
+    let pathStart = pathLength,
+        pathEnd = 0,
+        lastPathStart,
+        lastPathEnd;
+
+    navItems.forEach(item => {
+        if (thisElIsVisible(item.listItem)) {
+            pathStart = Math.min(item.pathStart, pathStart);
+            pathEnd = Math.max(item.pathEnd, pathEnd);
+        }
     });
-    // Toggle open and close nav styles on click
-    $('#nav-toggle').click(function () {
-      $('nav ul').slideToggle();
+
+    if (someElsAreVisible() && pathStart < pathEnd) {
+
+        if (pathStart !== lastPathStart || pathEnd !== lastPathEnd) {
+
+            const dashArray = `1 ${pathStart} ${pathEnd - pathStart} ${pathLength}`;
+
+            navPath.style.setProperty('stroke-dashoffset', '1');
+            navPath.style.setProperty('stroke-dasharray', dashArray);
+            navPath.style.setProperty('opacity', 1);
+        }
+
+    } else {
+        navPath.style.setProperty('opacity', 0);
+    }
+
+    lastPathStart = pathStart;
+    lastPathEnd = pathEnd;
+}
+
+function markVisibleSection(observedEls) {
+
+    observedEls.forEach(observedEl => {
+
+        const id = observedEl.target.getAttribute('id'),
+            anchor = document.querySelector(`nav li a[href="#${ id }"]`);
+
+        if (!anchor)
+            return false
+
+        const listItem = anchor.parentElement;
+
+        if (observedEl.isIntersecting) {
+            listItem.classList.add(visibleClass);
+        } else {
+            listItem.classList.remove(visibleClass);
+        }
+        syncPath();
     });
-    // Hamburger to X toggle
-    $('#nav-toggle').on('click', function () {
-      this.classList.toggle('active');
-    });
-  }); // end DOM ready
-})(jQuery); // end jQuery
+}
 
-var cards = $('.card');
+// === Draw path and observe ===
 
-cards.each((index, card) => {
-  $(card).prepend("<div class='shineLayer'></div>")
-});
+drawPath();
 
-$(".card").mousemove(function (event) {
-
-  var card = this;
-  var mouseCoord = {
-    x: event.offsetX,
-    y: event.offsetY
-  };
-
-  //cleanup
-  mouseCoord.x = mouseCoord.x < 0 ? 0 : mouseCoord.x;
-  mouseCoord.x = mouseCoord.x > $(card).width() ? $(card).width() : mouseCoord.x;
-  mouseCoord.y = mouseCoord.y < 0 ? 0 : mouseCoord.y;
-  mouseCoord.y = mouseCoord.y > $(card).height() ? $(card).height() : mouseCoord.y;
-
-  var transformCard = "scale3d(1.08, 1.08, 1.08) perspective(700px)";
-  transformCard += " ";
-  //rotateX between -9 and +9
-  transformCard += "rotateX(" + ((((mouseCoord.y / $(card).height()) * 18) - 9)) + "deg)";
-  transformCard += " ";
-  //rotateY between -13 and +13
-  transformCard += "rotateY(" + ((((mouseCoord.x / $(card).width()) * 26) - 13) * -1) + "deg)";
-
-  transformCard += " ";
-  //translateX between -3 and +3
-  transformCard += "translateX(" + (((mouseCoord.x / $(card).width()) * 6) - 3) + "px)";
-  transformCard += " ";
-  //translateY between -5 and +5
-  transformCard += "translateY(" + (((mouseCoord.y / $(card).height()) * 10) - 5) + "px)";
-
-  $(card).css("transform", transformCard);
-
-  //rotateX between -5 and +5
-  var transformCardImage = "rotateX(" + ((((mouseCoord.y / $(card).height()) * 10) - 5) * -1) + "deg)";
-  transformCardImage += " ";
-  //rotateX between -13 and +13
-  transformCardImage += "rotateY(" + ((((mouseCoord.x / $(card).width()) * 26) - 13) * -1) + "deg)";
-  $(card).find("img").css("transform", transformCardImage);
-
-  //opacity of ShineLayer between 0.1 and 0.4
-  var backgroundShineLayerOpacity = ((mouseCoord.y / $(card).height()) * 0.3) + 0.1;
-  //bottom=0deg; left=90deg; top=180deg; right=270deg;
-  var backgroundShineLayerDegree = (Math.atan2(mouseCoord.y - ($(card).height() / 2), mouseCoord.x - ($(card).width() / 2)) * 180 / Math.PI) - 90;
-  backgroundShineLayerDegree = backgroundShineLayerDegree < 0 ? backgroundShineLayerDegree += 360 : backgroundShineLayerDegree
-  var backgroundShineLayer = "linear-gradient(" + backgroundShineLayerDegree + "deg, rgba(255,255,255," + backgroundShineLayerOpacity + ") 0%, rgba(255,255,255,0) 80%)";
-  $(card).find(".shineLayer").css("background", backgroundShineLayer);
-});
-
-$(".card").mouseenter(function (event) {
-  $(".card").addClass("blur");
-  $(this).removeClass("blur");
-});
-
-$(".card").mouseleave(function (event) {
-  var card = this;
-  $(card).css("transform", "scale3d(1, 1, 1)");
-  $(card).find("img").css("transform", "");
-  $(card).find(".shineLayer").css("background", "linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 80%)");
-
-  $(".card").removeClass("blur");
-});
+const observer = new IntersectionObserver(markVisibleSection);
+elementsToObserve.forEach(thisEl => observer.observe(thisEl));
