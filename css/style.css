@@ -22,6 +22,19 @@ body {
     margin-top: 0px;
 }
 
+.container {
+    position: relative;
+}
+
+.center {
+    margin: 350px auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
 .sidebar {
     display: grid;
     margin: 0;
