@@ -248,7 +248,7 @@ section:last-of-type p:last-of-type {
     max-width: 120px;
 }
 
-.footer {
+footer {
     text-align: center;
     font-size: 10px;
     font-family: 'Lato';
@@ -262,4 +262,18 @@ blockquote {
     margin: 1.5em 10px;
     padding: 0.5em 10px;
     quotes: '\201C''\201D''\2018''\2019';
+}
+
+.article-img {
+    display: block;
+    margin: 40px auto 0 auto;
+    max-width: 100%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+figcaption {
+    width: 50%;
+    font-family: Lato;
+    font-size: 12px;
+    margin: 10px auto 30px auto;
 }

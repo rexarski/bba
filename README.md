@@ -2,12 +2,27 @@
 
 ## Todo
 
-- [x] add latex support
-- [x] add footnote support
-- [ ] [Basketball Reference](https://www.basketball-reference.com/leagues/NBA_1950_numbers.html)
-  - [ ] For uniform numbers preferences shifting?
-  - [ ] Before that, [BAA](https://www.basketball-reference.com/leagues/BAA_1947_numbers.html)
-  - [ ] interesting catch that multiple players from the same team used the same number in that season.
+- [x] About
+- [x] Introduction
+- [x] Data Gathering
+  - [x] Sources
+  - [ ] PBP
+  - [ ] Twitter
+  - [ ] Reddit
+  - [ ] 538
+  - [ ] The Pudding
+  - [ ] Google Trends
+  - [ ] BGM
+  - Supporting data ⏸️
+- [ ] Data Cleaning
+- [ ] Exploring Data
+- [ ] Clustering
+- [ ] ARM & Networking
+- [ ] Decision Tree
+- [ ] Naive Bayes
+- [ ] SVM
+- [ ] Conclusions
+- [ ] Infographic
 
 ## To read
 
@@ -15,3 +30,6 @@
 - [ ] Sprawlball
 - [ ] The Book of Basketball
 
+## Data
+
+See [rexarski/box2box](https://github.com/rexarski/box2box) for data and scripts.
