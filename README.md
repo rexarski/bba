@@ -6,13 +6,13 @@
 - [x] Introduction
 - [x] Data Gathering
   - [x] Sources
-  - [ ] PBP
-  - [ ] Twitter
-  - [ ] Reddit
-  - [ ] 538
-  - [ ] The Pudding
-  - [ ] Google Trends
-  - [ ] BGM
+  - [x] PBP
+  - [x] Twitter
+  - [x] Reddit
+  - [x] 538
+  - [x] The Pudding
+  - [x] Google Trends
+  - [x] BGM
   - Supporting data ⏸️
 - [ ] Data Cleaning
 - [ ] Exploring Data
