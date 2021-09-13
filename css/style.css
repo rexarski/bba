@@ -272,8 +272,9 @@ blockquote {
 }
 
 figcaption {
-    width: 50%;
+    width: 80%;
     font-family: Lato;
     font-size: 12px;
     margin: 10px auto 30px auto;
+    text-align: center;
 }

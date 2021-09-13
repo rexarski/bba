@@ -16,10 +16,37 @@
             </li>
             <li>
                 <a href="#methods">Gathering methods</a>
+                <ul>
+                    <li><a href="#pbp">Play-by-play data</a></li>
+                    <li><a href="#twitter">Twitter</a>
+                        <ul>
+                            <li><a href="#tweet">Tweets</a></li>
+                            <li><a href="#account">Accounts</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#reddit">Reddit</a></li>
+                    <li><a href="#fivethirtyeight">FiveThirtyEight</a>
+                        <ul>
+                            <li><a href="#raptor">RAPTOR</a></li>
+                            <li><a href="#draymond">DRAYMOND</a></li>
+                            <li><a href="#more">More</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#pudding">The Pudding</a>
+                        <ul>
+                            <li><a href="#last-two-minute-report">last-two-min</a></li>
+                            <li><a href="#hype">hype</a></li>
+                            <li><a href="#names">player-names</a></li>
+                            <li><a href="#three-seconds">three-seconds</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#google-trends">Google Trends</a></li>
+                    <li><a href="#support">Supporting data</a></li>
+                </ul>
             </li>
         </ul>
 
-        <svg xmlns="http://www.w3.org/2000/svg">
+        <svg xmlns=" http://www.w3.org/2000/svg">
             <path />
         </svg>
 
@@ -28,11 +55,22 @@
         <div class="subheading">Part 2: Data Gathering</div>
         <h1>The sources and the methods</h1>
 
-        <blockquote>Check out my GitHub repos for the <a
-                href="https://github.com/rexarski/rqiu.georgetown.domains/">source code</a> and <a
-                href="https://github.com/rexarski/box2box/">data</a>.</blockquote>
+        <p>Rui Qiu</p>
+        <p>Updated on 2021-09-13.</p>
+        <br>
 
-        <p>This part includes two sections, one listing all my (potential) data sources and detailing how I retrieved
+        <blockquote>Check out my GitHub repos for the <a
+                href="https://github.com/rexarski/rqiu.georgetown.domains/"><b>source code</b></a> and <a
+                href="https://github.com/rexarski/box2box/"><b>data</b></a>.</blockquote>
+
+        <figure>
+            <img src="https://imgs.xkcd.com/comics/flawed_data.png" alt="Flawed Data" class="article-img">
+            <figcaption>xkcd <a href="https://xkcd.com/2494/">2494</a>
+            </figcaption>
+        </figure>
+
+        <p>This part includes two sections, one listing all my (potential) data sources and one detailing how I
+            retrieved
             the data.</p>
 
         <section id="sources">
@@ -44,6 +82,9 @@
                         href="https://twitter.com/i/lists/17852612">NBA Players list</a>.</li>
                 <ul>
                     <li>That list of NBA players itself is also a solid and reliable data source.</li>
+                    <li>Additionally, Basketball Reference also provides a list of <a
+                            href="https://www.basketball-reference.com/friv/twitter.html">NBA players' Twitter
+                            handles</a>.</li>
                 </ul>
                 <li>Reddit posts from <a href="https://www.reddit.com/r/nba/">/r/nba</a> with <a
                         href="https://www.reddit.com/dev/api/">Reddit
@@ -71,17 +112,22 @@
                 </ul>
 
                 <li>Search term data from <a href="https://trends.google.com/trends/?geo=US">Google Trends</a>.</li>
-                <li><a href="https://github.com/alexnoob/BasketBall-GM-Rosters">BasketBall-GM-Rosters</a> and
-                    potentially some
-                    simulation data generated from
-                    <a href="https://basketball-gm.com/">Basketball GM</a>.
-                </li>
-                <li>Supporting data (not included at this moment, will be updated when needed) from</li>
+                <li>Supporting data (partially included at this moment, will be updated when needed) from</li>
                 <ul>
-                    <li><a href="https://www.nba.com/">NBA.com</a></li>
-                    <li><a href="https://www.basketball-reference.com/">Basketball Reference</a></li>
-                    <li><a href="https://www.spotrac.com/nba/">Spotrac</a></li>
+                    <li><a href="https://www.basketball-reference.com/">Basketball Reference</a>;</li>
+                    <li><a href="https://github.com/alexnoob/BasketBall-GM-Rosters">BasketBall-GM-Rosters</a> and
+                        potentially some
+                        simulation data generated from
+                        <a href="https://basketball-gm.com/">Basketball GM</a>.
+                    </li>
+                    <li><a href="https://www.nba.com/">NBA.com</a>;</li>
+                    <li><a
+                            href=" https://teamcolorcodes.com/nba-team-color-codes/ and https://en.wikipedia.org/wiki/Wikipedia:WikiProject_National_Basketball_Association/National_Basketball_Association_team_abbreviations">NBA
+                            Team Abbreviations</a> from Wikipedia;</li>
+                    <li><a href="https://teamcolorcodes.com/nba-team-color-codes/">NBA Team Color Codes</a> from Team
+                        Color Codes;</li>
                     <li>21-22 season’s team schedules for computing the travel distance of each team.</li>
+                    <li>More to come!</li>
                 </ul>
             </ul>
 
@@ -89,22 +135,293 @@
                 <a href="https://github.com/rexarski/box2box"><code>box2box</code></a> where
                 I store my own sports analytics scripts.
             </blockquote>
-
         </section>
 
         <section id="methods">
             <h2>Gathering methods</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </p>
         </section>
 
+        <section id="pbp">
+            <h2>Play-by-play data from PBP Stats</h2>
+            <blockquote><a href="https://github.com/rexarski/box2box/tree/main/data/nba-pbp">Data</a></blockquote>
+
+            <p><span>We can’t thank Darryl Blackport enough for putting this up as one of the most complete and detailed
+                    NBA in-game data sets online. Although it is a paid subscription on </span><a
+                    href='https://www.patreon.com/pbpstats/posts'><span>Patreon</span></a><span>, he deserves every
+                    penny of it. The dedication he puts into this project is unparalleled. Here is a snapshot of what
+                    the data set looks like.</span></p>
+            <figure>
+                <img src="/img/02-pbp.png" alt="PBP Stats" class="article-img">
+                <figcaption>Each shot was hand tracked, attached with a video link.</a>
+                </figcaption>
+            </figure>
+
+            <p><span>After filtering a bunch of conditions on his website, we can directly exporte the CSV data from
+                </span><a href='https://tracking.pbpstats.com/'><span>his website</span></a><span>.</span></p>
+
+            <figure>
+                <img src="/img/02-pbp-csv.png" alt="PBP Stats Raw" class="article-img">
+                <figcaption>PBP raw data.</a>
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="twitter">
+            <h2>Twitter data</h2>
+        </section>
+
+        <section id="tweet">
+            <h2>Text data from players' tweets</h2>
+            <blockquote>
+                <p><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-tweets/player-tweets.csv'><span>Data</span></a>
+                </p>
+                <p><a href='https://github.com/rexarski/box2box/blob/main/nba-player-tweet-scraper/tweet-scraper.py'><span>Python
+                            script</span></a></p>
+            </blockquote>
+            <p><span>We use Twitter Dev API and Python’s tweepy library to scrape the tweets that appeared in </span><a
+                    href='https://twitter.com/NBA'><span>@NBA</span></a><span>’s </span><a
+                    href='https://twitter.com/i/lists/17852612'><span>player list</span></a><span>.</span></p>
+            <p><span>The raw data looks like this:</span></p>
+            <figure>
+                <img src="/img/02-player-tweets.png" alt="Player Tweets" class="article-img">
+                <figcaption>Tweets raw data.</a>
+                </figcaption>
+            </figure>
+            <p><span>We intend to use tweet id to mark the time range to scrape the tweets backward manually. However,
+                    the Twitter API does not allow search by time. The id-trick is very inefficient. What’s worse is
+                    that we find out that we can only get 500 tweets for each request, which makes it even harder to
+                    scrape backward from a list Twitter list.</span></p>
+            <p><span>We might take a detour to get a shortlist of players first, then scrape their tweets individually.
+                    The data we have at this moment is not enough for the following text mining.</span></p>
+        </section>
+
+        <section id="account">
+            <h2>Player accounts data</h2>
+            <blockquote>
+                <p><a href='https://github.com/rexarski/box2box/blob/main/data/nba-tweets/player-accounts.csv'><span>Scraped
+                            data</span></a><span>, </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-tweets/player-accounts-br.csv'><span>data
+                            from BR</span></a></p>
+                <p><a href='https://github.com/rexarski/box2box/blob/main/nba-player-tweet-scraper/tweet-scraper.py'><span>Python
+                            script</span></a></p>
+            </blockquote>
+            <p><span>The player accounts data is acquired in the same manner.</span></p>
+            <figure>
+                <img src="/img/02-player-account.png" alt="Account Data" class="article-img">
+                <figcaption>Player account data.</a>
+                </figcaption>
+            </figure>
+            <p><span>Additionally, we decide to include </span><a
+                    href='https://www.basketball-reference.com/friv/twitter.html'><span>Basketball Reference’s
+                        list</span></a><span> as a compliment.</span></p>
+            <figure>
+                <img src="/img/02-player-account-br.png" alt="Account Data BR" class="article-img">
+                <figcaption>Basketball Reference's player account data.</a>
+                </figcaption>
+            </figure>
+
+            <p><span>Since we scraped the account data ourselves, we also include some metadata such as follower counts,
+                    account created time, etc.</span></p>
+        </section>
+
+        <section id="reddit">
+            <h2>Reddit data</h2>
+            <blockquote>
+                <p><a href='https://github.com/rexarski/box2box/tree/main/data/nba-reddit'><span>RDS data</span></a></p>
+                <p><a href='https://github.com/rexarski/box2box/blob/main/reddit-nba-scraper/reddit-scraper.r'><span>R
+                            script</span></a></p>
+            </blockquote>
+            <p><span>The Reddit API is more straightforward to use. However, we can only acquire a certain amount of
+                    data. For example, there’s no way to retrieve all the comments from a thread, and there is no way to
+                    work around this. If it is essential, we will also consider using data dumps like </span><a
+                    href='https://files.pushshift.io/reddit/comments/'><span>PushShift</span></a><span>.</span></p>
+            <p><span>We save the top 10 posts in the r/nba subreddit in an R list, stored in an.RDS file. One run of the
+                    script above will keep a daily copy of such data. The general structure of that list is shown
+                    below:</span></p>
+            <figure>
+                <img src="/img/02-reddit-thread.png" alt="Reddit Thread Data Structure" class="article-img">
+                <figcaption>Reddit thread data structure.</a>
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="fivethirtyeight">
+            <h2>FiveThirtyEight data</h2>
+            <p><span>Starting from here, we will make things easier by listing its current location (in our repository)
+                    and briefly introduce what they are about. All data are copied from their original repositories
+                    directly.</span></p>
+        </section>
+
+        <section id="raptor">
+            <h2>RAPTOR</h2>
+            <blockquote>
+                <p><a
+                        href='https://github.com/rexarski/box2box/tree/main/data/fivethirtyeight/nba-raptor'><span>Data</span></a>
+                </p>
+            </blockquote>
+            <p><span>RAPTOR stands for Robust Algorithm (using) Player Tracking (and) On/Off Ratings. It is
+                    FiveThirtyEight’s original NBA statistic.<sup><a href='#fn1' id='ref1'>1</a></sup>
+                </span></p>
+        </section>
+
+        <section id="draymond">
+            <h2>DRAYMOND</h2>
+            <blockquote>
+                <p><a
+                        href='https://github.com/rexarski/box2box/tree/main/data/fivethirtyeight/nba-draymond'><span>Data</span></a>
+                </p>
+            </blockquote>
+            <p><span>DRAYMOND stands for Defensive Rating Accounting for Yielding Minimal Openess by Nearest
+                    Defender.<sup><a href='#fn2' id='ref2'>2</a></sup>
+                    (538 is really good at coming up with an accronym.)</span></p>
+        </section>
+
+        <section id="more">
+            <h2>More</h2>
+            <blockquote>
+                <ul>
+                    <li>
+                        <p><a
+                                href='https://github.com/rexarski/box2box/tree/main/data/fivethirtyeight/nba-forecasts-elo'><span>Elo</span></a>
+                        </p>
+                    </li>
+                    <li>
+                        <p><a
+                                href='https://github.com/rexarski/box2box/tree/main/data/fivethirtyeight/nba-historical-elo'><span>Historial
+                                    Elo</span></a></p>
+                    </li>
+                    <li>
+                        <p><a
+                                href='https://github.com/rexarski/box2box/tree/main/data/fivethirtyeight/nba-player-advanced-metrics'><span>Advanced
+                                    metrics</span></a></p>
+                    </li>
+                    <li>
+                        <p><a href='https://github.com/rexarski/box2box/tree/main/data/fivethirtyeight/nba-winprobs'><span>Win
+                                    probabilities</span></a></p>
+                    </li>
+                </ul>
+            </blockquote>
+        </section>
+
+        <section id="pudding">
+            <h2>The Pudding data</h2>
+            <p><span>It is copied from the original repositories as well.</span></p>
+        </section>
+
+        <section id="last-two-minute-report">
+            <h2>last-two-minute-report</h2>
+            <blockquote>
+                <p><a
+                        href='https://github.com/rexarski/box2box/tree/main/data/the-pudding/last-two-minute-report'><span>Data</span></a>
+                </p>
+            </blockquote>
+            <p><span>Data of NBA’s last two minute officiating reports.<sup><a href='#fn3' id='ref3'>3</a></sup>
+                </span></p>
+        </section>
+
+        <section id="hype">
+            <h2>hype</h2>
+            <blockquote>
+                <p><a href='https://github.com/rexarski/box2box/tree/main/data/the-pudding/hype'><span>Data and
+                            script</span></a></p>
+            </blockquote>
+            <p><span>Data about the careers of 1,873 players.<sup><a href='#fn4' id='ref4'>4</a></sup>
+                </span></p>
+        </section>
+
+        <section id="names">
+            <h2>NBA player names with hyphens</h2>
+            <blockquote>
+                <p><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/the-pudding/nba-player-names/data-all.json'><span>Data</span></a>
+                </p>
+            </blockquote>
+            <p><span>The player names data <sup><a href='#fn5' id='ref5'>5</a></sup> is
+                    provided in a JSON, downloaded by </span><code>wget</code><span>.</span></p>
+            <figure>
+                <img src="/img/02-wget-json.png" alt="wget JSON" class="article-img">
+                <figcaption>Use bash command to retrieve data.</a>
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="three-seconds">
+            <h2>three-seconds</h2>
+            <blockquote>
+                <p><a
+                        href='https://github.com/rexarski/box2box/tree/main/data/the-pudding/three-seconds'><span>Data</span></a>
+                </p>
+            </blockquote>
+            <p><span>Data of every defensive three seconds call in the NBA between 2015-2018 (including
+                    playoffs).<sup><a href='#fn6' id='ref6'>6</a></sup></span></p>
+        </section>
+
+        <section id="google-trends">
+            <h2>Google Trends search term data</h2>
+            <blockquote>
+                <p><a
+                        href='https://github.com/rexarski/box2box/tree/main/data/google-trends-taco-tuesday'><span>Data</span></a><span>.</span>
+                </p>
+            </blockquote>
+            <p><span>The data is extracted from the page of Google Trends. After selecting some terms of interest, we
+                    click the download button on the top right corner and extract CSV data. But note that, the numbers
+                    in the data show relative interest on the Internet. They are not absolute values.</span></p>
+            <figure>
+                <img src="/img/02-google-trends.png" alt="Google Trends Data" class="article-img">
+                <figcaption>Google Trends search term interest data.</a>
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="support">
+            <h2>Supporting data</h2>
+            <ul>
+                <li><span>Basketball-GM’s </span><a
+                        href='https://github.com/rexarski/box2box/tree/main/data/bgm-simulation'><span>2021-22 NBA
+                            roster</span></a><span>.</span></li>
+                <li><a href='https://github.com/rexarski/box2box/blob/main/data/nba-team-data/codes-and-colors.csv'><span>Team
+                            information</span></a><span> including names, short codes, and colors.</span></li>
+                <figure>
+                    <img src="/img/02-team-data.png" alt="NBA Team Info" class="article-img">
+                    <figcaption>Team short codes and colors.</a>
+                    </figcaption>
+                </figure>
+            </ul>
+        </section>
+
+        <p><span>Haven’t decided what data to use in the future. We will keep this updated.</span></p>
+
         <hr>
+
+        <p><span><sup id='fn1'>1. <a
+                        href='https://fivethirtyeight.com/features/introducing-raptor-our-new-metric-for-the-modern-nba/'>Introducing
+                        RAPTOR, Our New Metric For The Modern NBA. (fivethirtyeight.com)</a><a href='#ref1'
+                        title='Jump back to fn1 in the text.'>↩</a></sup></span></p>
+
+        <p><span><sup id='fn2'>2. <a href='https://fivethirtyeight.com/features/a-better-way-to-evaluate-nba-defense/'>A
+                        Better
+                        Way To
+                        Evaluate NBA Defense. (fivethirtyeight.com)</a><a href='#ref2' title='Jump back to footnote 2 in the
+    text.'>↩</a></sup></span></p>
+
+        <p><span><sup id='fn3'>3. <a href='https://pudding.cool/2017/02/two-minute-report/'>NBA Last Two Minute Report.
+                        (pudding.cool)</a><a href='#ref3'
+                        title='Jump back to footnote 3 in the text.'>↩</a></sup></span></p>
+
+        <p><span><sup id='fn4'>4. <a href='https://pudding.cool/2019/03/hype/'>How many high school stars make it to the
+                        NBA?
+                        (pudding.cool)</a><a href='#ref4' title='Jump back to footnote 4 in the text.'>↩</a></sup>
+            </span></p>
+
+        <p><span><sup id='fn5'>5. <a href='https://pudding.cool/2019/03/nba-spelling/'>Spell Jam. (pudding.cool)</a><a
+                        href='#ref5' title='Jump back to footnote 5 in the text.'>↩</a></sup></span></p>
+
+        <p><span><sup id='fn6'>6. <a href='https://pudding.cool/2019/05/three-seconds/'>The NBA Has a Defensive Three
+                        Seconds
+                        Problem.
+                        (pudding.cool)</a><a href='#ref6'
+                        title='Jump back to footnote 6 in the text.'>↩</a></sup></span></p>
 
         <footer class="footer">
             <p>Copyright &copy; 2021 <a href="https://qrui.xyz">Ruì Qiū</a></p>
@@ -115,10 +432,9 @@
     <script>
         MathJax = {
             tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']]
+                inlineMath: [[' $', '$'], ['\\(', '\\)']]
             }
-        };
-    </script>
+        };</script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
     </script>
 </body>
