@@ -284,11 +284,13 @@
 
             <p><span>Moreover, we believe it is also a good practice to keep such time-sensitive data collection routine
                     as automated as possible. So we decide to utilize <a
-                        href='https://github.com/features/actions'>GitHub Actions</a> feature in my repository.
+                        href='https://github.com/features/actions'>GitHub Actions</a> feature in the repository.
                     Basically, we set up a schedule cron job for the repository to run a specified script in a specified
                     environment. And thanks to <a href='https://github.com/marketplace/actions/git-auto-commit'>Git Auto
                         Commit</a> action developed by <a href='https://github.com/stefanzweifel'>Stefan Zweifel</a>, we
-                    can commit and push the scraped data to the repo.</span></p>
+                    can commit and push the scraped data to the repo automatically. To summarize, we let the script run
+                    once a day (at say 21:02 UTC), we get the data, we save the data. Then we can use them for analysis
+                    later.</span></p>
 
             <figure>
                 <img src="/img/02-github-actions.png" alt="GitHub Actions of our Reddit Scraper" class="article-img">
