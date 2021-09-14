@@ -9,7 +9,7 @@
 
 <body class="sidebar">
     <nav>
-        ◀️ <a href="index.html" class="return-button">Back to Home </a>
+        ◀️ <a href="index.html" class="return-button">Back</a>
         <ul>
             <li>
                 <a href="#sources">Data sources</a>
@@ -56,7 +56,7 @@
         <h1>The sources and the methods</h1>
 
         <p>Rui Qiu</p>
-        <p>Updated on 2021-09-13.</p>
+        <p>Updated on 2021-09-14.</p>
         <br>
 
         <blockquote>Check out my GitHub repos for the <a
@@ -228,22 +228,86 @@
         <section id="reddit">
             <h2>Reddit data</h2>
             <blockquote>
-                <p><a href='https://github.com/rexarski/box2box/tree/main/data/nba-reddit'><span>RDS data</span></a></p>
+                <p><a href='https://github.com/rexarski/box2box/tree/main/data/nba-reddit'><span>RDS data</span></a>, <a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-reddit/test-run.json'><span>JSON
+                            data</span></a></p>
                 <p><a href='https://github.com/rexarski/box2box/blob/main/reddit-nba-scraper/reddit-scraper.r'><span>R
-                            script</span></a></p>
+                            script 1</span></a>, <a
+                        href='https://github.com/rexarski/box2box/blob/main/reddit-nba-scraper/cron-job.r'><span>R
+                            script 2 (GitHub Action)</span></a></p>
             </blockquote>
-            <p><span>The Reddit API is more straightforward to use. However, we can only acquire a certain amount of
-                    data. For example, there’s no way to retrieve all the comments from a thread, and there is no way to
-                    work around this. If it is essential, we will also consider using data dumps like </span><a
+            <p><span>
+                    For Reddit content scraping, we believe its <a href='https://www.reddit.com/dev/api/'>API</a> is
+                    more straightforward, but the documentation is <a
+                        href='https://www.reddit.com/r/redditdev/comments/c93rdt/how_do_i_get_json_data_of_a_specific_post_without/'>poorly
+                        structured</a>. In fact, we can only acquire a certain amount of
+                    data. Specifically, there’s no way to retrieve all the comments from a thread, and there is no way
+                    to
+                    work around this. If it is really necessary, we will also consider using data dumps like </span><a
                     href='https://files.pushshift.io/reddit/comments/'><span>PushShift</span></a><span>.</span></p>
-            <p><span>We save the top 10 posts in the r/nba subreddit in an R list, stored in an.RDS file. One run of the
-                    script above will keep a daily copy of such data. The general structure of that list is shown
-                    below:</span></p>
+            <p><span>In order to show that we are able to utilize Reddit API, we still manage to acquire some irrelevant
+                    data in this way. The script will show some metadata of user <b>rexarski</b>. </span></p>
+
+            <figure>
+                <img src="/img/02-my-metadata.png" alt="Metadata of Reddit User rexarski" class="article-img">
+                <figcaption>Metadata of Reddit user rexarski.</a>
+                </figcaption>
+            </figure>
+
+            <p><span>Then we start to reconsider what type of data should be prioritized in our data gathering process.
+                    For this one, the data of posts should be the one. We decide to take another shot at Reddit's open
+                    API, the one accessible even without a dev app registration. The one we used here is
+                    <code>https://api.reddit.com/r/nba/top/?t=day</code>, which should return a JSON of of 25 posts on
+                    the front page of subreddit r/nba.</span></p>
+
+            <figure>
+                <img src="/img/02-reddit-api.png" alt="Direct API Access to Reddit" class="article-img">
+                <figcaption>Direct API Access to Reddit.</a>
+                </figcaption>
+            </figure>
+
+            <p><span>Naturally, we save the data as a raw JSON file, which is accessible as <code>test-run.json</code>
+                    in the repo.</span></p>
+
+            <p><span>But we are not satisfied with what we have now. This should be more painless. After some community
+                    post browsing, we are happy to find the R package <a
+                        href='https://github.com/ivan-rivera/RedditExtractoR'>RedditExtractoR</a>. With its power, we
+                    save the top 10 posts in the r/nba subreddit in an R list. Since it is a single R variable, it’s
+                    perfect to store it in an .RDS file. One iteration of the script above will keep a daily copy of
+                    such data. The general structure of that list is shown below:</span></p>
+
             <figure>
                 <img src="/img/02-reddit-thread.png" alt="Reddit Thread Data Structure" class="article-img">
                 <figcaption>Reddit thread data structure.</a>
                 </figcaption>
             </figure>
+
+            <p><span>Moreover, we believe it is also a good practice to keep such time-sensitive data collection routine
+                    as automated as possible. So we decide to utilize <a
+                        href='https://github.com/features/actions'>GitHub Actions</a> feature in my repository.
+                    Basically, we set up a schedule cron job for the repository to run a specified script in a specified
+                    environment. And thanks to <a href='https://github.com/marketplace/actions/git-auto-commit'>Git Auto
+                        Commit</a> action developed by <a href='https://github.com/stefanzweifel'>Stefan Zweifel</a>, we
+                    can commit and push the scraped data to the repo.</span></p>
+
+            <figure>
+                <img src="/img/02-github-actions.png" alt="GitHub Actions of our Reddit Scraper" class="article-img">
+                <figcaption>GitHub Actions of our Reddit scraper.</a>
+                </figcaption>
+            </figure>
+
+            <p><span>The Action setting file is located <a
+                        href='https://github.com/rexarski/box2box/blob/main/.github/workflows/reddit-scraper.yml'>here</a>.</span>
+            </p>
+
+            <p><span>We can even checking the workflow status by looking at an SVG badge that GitHub
+                    provides.</span></p>
+
+            <svg>
+                <image href='https://github.com/rexarski/box2box/actions/workflows/reddit-scraper.yml/badge.svg'>
+                </image>
+            </svg>
+
         </section>
 
         <section id="fivethirtyeight">
@@ -390,7 +454,9 @@
             </ul>
         </section>
 
-        <p><span>Haven’t decided what data to use in the future. We will keep this updated.</span></p>
+        <p><span>Although we haven’t decided what data to use in the future, there will be lots of so-called “labor of
+                love” in collecting and tidying those supporting data for sure. Nevertheless, we still have a lot of fun
+                and we will keep this updated.</span></p>
 
         <hr>
 
