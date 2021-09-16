@@ -59,8 +59,8 @@
         <p>Updated on 2021-09-16.</p>
         <br>
 
-        <blockquote>Check out my GitHub repos for the <a
-                href="https://github.com/rexarski/rqiu.georgetown.domains/"><b>source code</b></a> and <a
+        <blockquote>Check out the GitHub repository for the <a
+                href="https://github.com/rexarski/rqiu.georgetown.domains/"><b>source code</b></a> and the <a
                 href="https://github.com/rexarski/box2box/"><b>data</b></a>.</blockquote>
 
         <figure>
@@ -69,7 +69,7 @@
             </figcaption>
         </figure>
 
-        <p>This part includes two sections, one listing all my (potential) data sources and one detailing how I
+        <p>This part includes two sections, one listing all (potential) data sources and one detailing how I
             retrieved
             the data.</p>
 
@@ -130,11 +130,6 @@
                     <li>More to come!</li>
                 </ul>
             </ul>
-
-            <blockquote> I will keep all the data stored in my GitHub repo
-                <a href="https://github.com/rexarski/box2box"><code>box2box</code></a> where
-                I store my own sports analytics scripts.
-            </blockquote>
         </section>
 
         <section id="methods">
@@ -273,10 +268,11 @@
             <p><span>Naturally, the data is saved as a raw JSON file, which is accessible as <code>test-run.json</code>
                     in the repo.</span></p>
 
-            <p><span>But we are not satisfied with what we have now. This should be more painless. After some community
-                    post browsing, we are happy to find the R package <a
-                        href='https://github.com/ivan-rivera/RedditExtractoR'>RedditExtractoR</a>. With its power, we
-                    save the top 10 posts in the r/nba subreddit in an R list. Since it is a single R variable, it’s
+            <p><span>But this approach is not satisfying enough. It should be more painless. After some community
+                    post browsing, an R package <a
+                        href='https://github.com/ivan-rivera/RedditExtractoR'>RedditExtractoR</a> emerges. With its
+                    power, it becomes much easier to save the top 10 posts in the r/nba subreddit in an R list. Since an
+                    R list is a single R variable, it’s
                     perfect to store it in an .RDS file. One iteration of the script above will keep a daily copy of
                     such data. The general structure of that list is shown below:</span></p>
 
@@ -287,9 +283,9 @@
             </figure>
 
             <p><span>Moreover, it is also a good practice to keep such time-sensitive data collection routine
-                    as automated as possible. So we decide to utilize <a
-                        href='https://github.com/features/actions'>GitHub Actions</a> feature in the repository.
-                    Basically, a scheduled cron job for the repository is set up to run a specified script in a
+                    as automated as possible. Therefore the a <a href='https://github.com/features/actions'>GitHub
+                        Action</a> is deployed to fulfill the job.
+                    Basically, a scheduled cron job inside the repository is set up to run a specified script in a
                     specified
                     environment. And thanks to <a href='https://github.com/marketplace/actions/git-auto-commit'>Git Auto
                         Commit</a> action developed by <a href='https://github.com/stefanzweifel'>Stefan Zweifel</a>,
@@ -319,8 +315,8 @@
 
         <section id="fivethirtyeight">
             <h2>FiveThirtyEight data</h2>
-            <p><span>Starting from here, let us make things easier by listing its current location (in the repository)
-                    and briefly introduce what they are about. All data are copied from their original repositories
+            <p><span>Starting from here, the current location of the data will be listed, and a brief introduction of
+                    what they are about will follow. All data are copied from their original repositories
                     directly.</span></p>
         </section>
 
