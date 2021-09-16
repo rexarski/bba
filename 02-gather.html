@@ -56,7 +56,7 @@
         <h1>The sources and the methods</h1>
 
         <p>Rui Qiu</p>
-        <p>Updated on 2021-09-14.</p>
+        <p>Updated on 2021-09-16.</p>
         <br>
 
         <blockquote>Check out my GitHub repos for the <a
@@ -145,7 +145,7 @@
             <h2>Play-by-play data from PBP Stats</h2>
             <blockquote><a href="https://github.com/rexarski/box2box/tree/main/data/nba-pbp">Data</a></blockquote>
 
-            <p><span>We can’t thank Darryl Blackport enough for putting this up as one of the most complete and detailed
+            <p><span>Thanks to Darryl Blackport for putting this up as one of the most complete and detailed
                     NBA in-game data sets online. Although it is a paid subscription on </span><a
                     href='https://www.patreon.com/pbpstats/posts'><span>Patreon</span></a><span>, he deserves every
                     penny of it. The dedication he puts into this project is unparalleled. Here is a snapshot of what
@@ -156,8 +156,8 @@
                 </figcaption>
             </figure>
 
-            <p><span>After filtering a bunch of conditions on his website, we can directly exporte the CSV data from
-                </span><a href='https://tracking.pbpstats.com/'><span>his website</span></a><span>.</span></p>
+            <p><span>After filtering a bunch of conditions on </span><a href='https://tracking.pbpstats.com/'><span>his
+                        website</span></a><span>, the data can be directly exported in CSV format.</span></p>
 
             <figure>
                 <img src="/img/02-pbp-csv.png" alt="PBP Stats Raw" class="article-img">
@@ -179,8 +179,8 @@
                 <p><a href='https://github.com/rexarski/box2box/blob/main/nba-player-tweet-scraper/tweet-scraper.py'><span>Python
                             script</span></a></p>
             </blockquote>
-            <p><span>We use Twitter Dev API and Python’s tweepy library to scrape the tweets that appeared in </span><a
-                    href='https://twitter.com/NBA'><span>@NBA</span></a><span>’s </span><a
+            <p><span>Twitter Dev API and Python’s tweepy library are used to scrape the tweets that appeared in
+                </span><a href='https://twitter.com/NBA'><span>@NBA</span></a><span>’s </span><a
                     href='https://twitter.com/i/lists/17852612'><span>player list</span></a><span>.</span></p>
             <p><span>The raw data looks like this:</span></p>
             <figure>
@@ -188,12 +188,12 @@
                 <figcaption>Tweets raw data.</a>
                 </figcaption>
             </figure>
-            <p><span>We intend to use tweet id to mark the time range to scrape the tweets backward manually. However,
+            <p><span>Tweet id is used to mark the time range to scrape the tweets backward manually. However,
                     the Twitter API does not allow search by time. The id-trick is very inefficient. What’s worse is
-                    that we find out that we can only get 500 tweets for each request, which makes it even harder to
+                    that the limit of each request is only 500 tweets, which makes it even harder to
                     scrape backward from a list Twitter list.</span></p>
             <p><span>We might take a detour to get a shortlist of players first, then scrape their tweets individually.
-                    The data we have at this moment is not enough for the following text mining.</span></p>
+                    The data at this moment is not enough for the following text mining.</span></p>
         </section>
 
         <section id="account">
@@ -212,16 +212,16 @@
                 <figcaption>Player account data.</a>
                 </figcaption>
             </figure>
-            <p><span>Additionally, we decide to include </span><a
+            <p><span>Additionally, </span><a
                     href='https://www.basketball-reference.com/friv/twitter.html'><span>Basketball Reference’s
-                        list</span></a><span> as a compliment.</span></p>
+                        list</span></a><span> is included as a compliment.</span></p>
             <figure>
                 <img src="/img/02-player-account-br.png" alt="Account Data BR" class="article-img">
                 <figcaption>Basketball Reference's player account data.</a>
                 </figcaption>
             </figure>
 
-            <p><span>Since we scraped the account data ourselves, we also include some metadata such as follower counts,
+            <p><span>It might be a good idea to include some metadata such as follower counts,
                     account created time, etc.</span></p>
         </section>
 
@@ -237,16 +237,19 @@
                             script 2 (GitHub Action)</span></a></p>
             </blockquote>
             <p><span>
-                    For Reddit content scraping, we believe its <a href='https://www.reddit.com/dev/api/'>API</a> is
+                    For Reddit content scraping, its <a href='https://www.reddit.com/dev/api/'>API</a> is
                     more straightforward, but the documentation is <a
                         href='https://www.reddit.com/r/redditdev/comments/c93rdt/how_do_i_get_json_data_of_a_specific_post_without/'>poorly
-                        structured</a>. In fact, we can only acquire a certain amount of
-                    data. Specifically, there’s no way to retrieve all the comments from a thread, and there is no way
+                        structured</a>. In fact, only a certain amount of
+                    data can be acquired. Specifically, there’s no way to retrieve all the comments from a thread, and
+                    there is no way
                     to
-                    work around this. If it is really necessary, we will also consider using data dumps like </span><a
+                    work around this. If it is really necessary, it is strongly suggested to also consider using data
+                    dumps like </span><a
                     href='https://files.pushshift.io/reddit/comments/'><span>PushShift</span></a><span>.</span></p>
-            <p><span>In order to show that we are able to utilize Reddit API, we still manage to acquire some irrelevant
-                    data in this way. The script will show some metadata of user <b>rexarski</b>. </span></p>
+            <p><span>In order to show that utilizing Reddit API with R is viable, some irrelevant
+                    data is still scraped in this way. The script contains the metadata of user <b>rexarski</b>. </span>
+            </p>
 
             <figure>
                 <img src="/img/02-my-metadata.png" alt="Metadata of Reddit User rexarski" class="article-img">
@@ -254,10 +257,11 @@
                 </figcaption>
             </figure>
 
-            <p><span>Then we start to reconsider what type of data should be prioritized in our data gathering process.
-                    For this one, the data of posts should be the one. We decide to take another shot at Reddit's open
-                    API, the one accessible even without a dev app registration. The one we used here is
-                    <code>https://api.reddit.com/r/nba/top/?t=day</code>, which should return a JSON of of 25 posts on
+            <p><span>Then reconsider what type of data should be prioritized in the data gathering process.
+                    For this one, it should be the metadata of posts. It's not bad to take another shot at Reddit's
+                    open
+                    API, the one accessible even without a dev app registration. For instance,
+                    <code>https://api.reddit.com/r/nba/top/?t=day</code>, should return a JSON of of 25 posts on
                     the front page of subreddit r/nba.</span></p>
 
             <figure>
@@ -266,7 +270,7 @@
                 </figcaption>
             </figure>
 
-            <p><span>Naturally, we save the data as a raw JSON file, which is accessible as <code>test-run.json</code>
+            <p><span>Naturally, the data is saved as a raw JSON file, which is accessible as <code>test-run.json</code>
                     in the repo.</span></p>
 
             <p><span>But we are not satisfied with what we have now. This should be more painless. After some community
@@ -282,19 +286,20 @@
                 </figcaption>
             </figure>
 
-            <p><span>Moreover, we believe it is also a good practice to keep such time-sensitive data collection routine
+            <p><span>Moreover, it is also a good practice to keep such time-sensitive data collection routine
                     as automated as possible. So we decide to utilize <a
                         href='https://github.com/features/actions'>GitHub Actions</a> feature in the repository.
-                    Basically, we set up a schedule cron job for the repository to run a specified script in a specified
+                    Basically, a scheduled cron job for the repository is set up to run a specified script in a
+                    specified
                     environment. And thanks to <a href='https://github.com/marketplace/actions/git-auto-commit'>Git Auto
-                        Commit</a> action developed by <a href='https://github.com/stefanzweifel'>Stefan Zweifel</a>, we
-                    can commit and push the scraped data to the repo automatically. To summarize, we let the script run
-                    once a day (at say 21:02 UTC), we get the data, we save the data. Then we can use them for analysis
-                    later.</span></p>
+                        Commit</a> action developed by <a href='https://github.com/stefanzweifel'>Stefan Zweifel</a>,
+                    the cron job is enabled to commit and push the scraped data to the repo automatically. To summarize,
+                    the script runs
+                    once a day (at say 21:02 UTC), gets the data, saves the data.</span></p>
 
             <figure>
-                <img src="/img/02-github-actions.png" alt="GitHub Actions of our Reddit Scraper" class="article-img">
-                <figcaption>GitHub Actions of our Reddit scraper.</a>
+                <img src="/img/02-github-actions.png" alt="GitHub Actions of the Reddit Scraper" class="article-img">
+                <figcaption>GitHub Actions of the Reddit scraper.</a>
                 </figcaption>
             </figure>
 
@@ -314,7 +319,7 @@
 
         <section id="fivethirtyeight">
             <h2>FiveThirtyEight data</h2>
-            <p><span>Starting from here, we will make things easier by listing its current location (in our repository)
+            <p><span>Starting from here, let us make things easier by listing its current location (in the repository)
                     and briefly introduce what they are about. All data are copied from their original repositories
                     directly.</span></p>
         </section>
@@ -456,9 +461,9 @@
             </ul>
         </section>
 
-        <p><span>Although we haven’t decided what data to use in the future, there will be lots of so-called “labor of
-                love” in collecting and tidying those supporting data for sure. Nevertheless, we still have a lot of fun
-                and we will keep this updated.</span></p>
+        <p><span>There will be lots of so-called “labor of
+                love” in collecting and tidying those supporting data for sure in the future. Nevertheless, it is still
+                a lot of fun.</span></p>
 
         <hr>
 
