@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Data Cleaning - Rui Qiu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="sidebar">
+    <nav>
+        ◀️ <a href="index.html" class="return-button">Back</a>
+        <ul>
+            <li>
+                <a href="#sec1">Record cleaning with R</a>
+                <ul>
+                    <li><a href="#sec11">Remove redundant variables</a></li>
+                    <li><a href="#sec12">Reorder remaining variables</a></li>
+                    <li><a href="#sec13">Get a list of player-id</a></li>
+                    <li><a href="#sec14">Check legitimacy</a></li>
+                    <li><a href="#sec15">Create new features</a></li>
+                    <li><a href="#sec16">Save cleaned data</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#sec2">Text cleaning with R</a>
+                <ul>
+                    <li><a href="sec21">cron job update</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#sec3">Record cleaning with Python</a>
+            </li>
+            <li>
+                <a href="#sec4">Text (CSV) cleaning with Python</a>
+            </li>
+            <li>
+                <a href="#sec5">Text (corpus) cleaning with Python</a>
+            </li>
+            <li>
+                <a href="#sec6">Conclusion</a>
+            </li>
+        </ul>
+
+        <svg xmlns=" http://www.w3.org/2000/svg">
+            <path />
+        </svg>
+
+    </nav>
+    <article id="top">
+        <div class="subheading">Part 3: Data Cleaning</div>
+        <h1>Chaos isn't a pit. Chaos is a ladder.</h1>
+
+        <p>Rui Qiu</p>
+        <p>Updated on 2021-09-26.</p>
+        <br>
+
+        <div style="width:100%;height:0;padding-bottom:56%;position:relative;"><iframe
+                src="https://giphy.com/embed/f6V2NuQkYPDNadshqb" width="100%" height="100%" style="position:absolute"
+                frameBorder="0" class="giphy-embed" allowFullScreen></iframe></div>
+        <figcaption>
+            <p>via GIPHY</p>
+        </figcaption>
+
+        <p><span>Without a doubt, cleaning is painful. But hopefully, it will provide some convenience later.</span></p>
+        <p><span>For this part of the portfolio, not only was the collected data cleaned, more data was introduced into
+                the game. Compared with the collection two weeks ago, it expands in the following three ways.</span></p>
+        <ol>
+            <li><span>The hand-tracked play-by-play NBA data provided by PBP Stats only includes three-point shooting
+                    attempts, which only account for roughly one-sixth of the total shooting data from the 2020-2021
+                    regular
+                    season. More data categorized by the team has been pushed to the repository.</span></li>
+            <li><span>Some sports news articles are extracted with NewsAPI in order to fulfill the objective of cleaning
+                    text corpus with Python. There are no intermediate files saved. The final Document-term matrices are
+                    stored
+                    as text files instead.</span></li>
+            <li><span>As time goes by, the data collection of the top 10 posts in Reddit’s /r/NBA subreddit is growing
+                    day
+                    by day.</span></li>
+        </ol>
+        <p>&nbsp;</p>
+        <section id="sec1">
+
+            <h2><span>Section 1: Record cleaning with R</span></h2>
+            <blockquote>
+                <p><span>Script: </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/nba-xT-model/pbp-cleaner.R'><span>pbp-cleaner.R</span></a>
+                </p>
+                <p><span>Data (raw): </span><a
+                        href='https://github.com/rexarski/box2box/tree/main/data/nba-pbp/2020-raw-by-team'><span>data/nba-pbp/2020-raw-by-team</span></a>
+                </p>
+                <p><span>Data (cleaned): </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-pbp/pbpstats-tracking-shots-cleaned.csv'><span>a
+                            complete list of shots</span></a><span>, </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-pbp/player-id.csv'><span>a list of
+                            player and
+                            id</span></a><span>, </span><a
+                        href='https://github.com/rexarski/box2box/tree/main/data/nba-pbp/2020-cleaned-by-team'><span>group
+                            by
+                            team</span></a><span>, </span><a
+                        href='https://github.com/rexarski/box2box/tree/main/data/nba-pbp/2020-cleaned-by-opponent'><span>group
+                            by
+                            opponent</span></a></p>
+            </blockquote>
+            <p><span>As mentioned above, the </span><a
+                    href='https://github.com/rexarski/box2box/blob/main/data/nba-pbp/pbpstats-tracking-shots.csv'><span>previous
+                        data</span></a><span> is only a partition of the data of interest. After retrieving more data
+                    from
+                    the same
+                    resource, a directory of all teams’ shot attempts from the 2020-2021 regular season are ready for
+                    cleaning.
+                </span></p>
+            <p><span>All the CSV files are row-binded into one large tibble. A </span><code>glimpse()</code><span> would
+                    demonstrate the overall structure of such tibble.</span></p>
+
+            <figure>
+                <img src="img/03-glimpse-shots.png" alt="glimpse(shots_dat)" class="article-img-no-shadow">
+                <figcaption>glimpse of shots_dat</figcaption>
+            </figure>
+
+            <p><span>The </span><code>shots_dat</code><span> tibble has in total 188975 rows of shots recorded and 37
+                    variables for each shot.</span></p>
+        </section>
+
+        <section id="sec11">
+            <h3><span>Remove redundant variables</span></h3>
+            <p><span>Some of the variables are not that appealing, either because they don’t provide much information
+                    for
+                    building our expected score/threat model, or they are just ids of some other variables. They are
+                    based
+                    on the
+                    common fact that the current roaster of NBA players does not contain players sharing the same name.
+                    Therefore,
+                    removing the </span><code>id</code><span>s does not matter too much.</span></p>
+            <p><span>The following variables are discarded: </span><code>gameid</code><span>,
+                </span><code>eventnum</code><span>, </span><code>oreboundedshoteventnum</code><span>,
+                </span><code>oreboundedrebeventnum</code><span>, </span><code>offense_team_id</code><span>,
+                </span><code>defense_team_id</code><span>, </span><code>possession_start_type</code><span>,
+                </span><code>possession_start_time</code><span>, </span><code>blockplayerid</code><span>,
+                </span><code>assistplayerid</code><span>.</span></p>
+        </section>
+
+        <section id="sec12">
+            <h3><span>Reorder remaining variables</span></h3>
+            <p><span>Usually, </span><code>relocate()</code><span> fits the need here. However,
+                </span><code>select()</code><span> would be a better choice since all variables might need a
+                    reconsideration
+                    before moving on to the next stage.</span></p>
+            <p><span>By doing so, the variables are grouped into eight subgroups below:</span></p>
+            <ul>
+                <li><strong><span>Offensive player(s):</span></strong><span> </span><code>player</code><span>,
+                    </span><code>playerid</code><span>, </span><code>team</code><span>,
+                    </span><code>assist_player</code><span>,
+                    </span><code>lineupid</code></li>
+                <li><strong><span>Defensive player(s):</span></strong><span> </span><code>opponent</code><span>,
+                    </span><code>block_player</code><span>, </span><code>opplineupid</code></li>
+                <li><strong><span>Time:</span></strong><span> </span><code>date</code><span>,
+                    </span><code>period</code><span>,
+                    </span><code>possensionnumber</code><span>, </span><code>time</code><span>,
+                    </span><code>shot_clock</code>
+                </li>
+                <li><strong><span>Game:</span></strong><span> </span><code>margin</code></li>
+                <li><strong><span>Location:</span></strong><span> </span><code>x</code><span>, </span><code>y</code>
+                </li>
+                <li><strong><span>Shot setup:</span></strong><span> </span><code>shottpye</code><span>,
+                    </span><code>assisted</code><span>, </span><code>putback</code><span>,
+                    </span><code>closest_def_dist</code><span>, </span><code>touch_time</code><span>,
+                    </span><code>dribble_range</code></li>
+                <li><strong><span>Shot result:</span></strong><span> </span><code>value</code><span>,
+                    </span><code>made</code><span>, </span><code>blocked</code><span>, </span><code>and1</code></li>
+                <li><strong><span>Miscellaneous:</span></strong><span> </span><code>video_url</code></li>
+            </ul>
+            <blockquote>
+                <p><span>By far, there is a lethal defect in this collection of data compared with the previous one:
+                        there
+                        are
+                        no traces of assist or pass coordinate in this one. That is to say, to build a time-based or
+                        location-based
+                        Markov Chain of ball movement before scoring, we need to investigate something like a game log
+                        in
+                        detail to
+                        retrieve those pass locations. This is really disheartening.</span></p>
+            </blockquote>
+        </section>
+
+        <section id="sec13">
+            <h3><span>Get a list of player-id for reference</span></h3>
+            <p><span>This step is not urgent but probably necessary. A list of </span><code>player</code><span>and
+                </span><code>playerid</code><span>is exported into a CSV file. Even though some
+                </span><code>id</code><span>s
+                    variables have been deleted, the </span><code>lineupid</code><span> and
+                </span><code>opplineupid</code><span>
+                    are still string variables with </span><code>playerid</code><span> separated by hyphens
+                    (</span><code>-</code><span>). </span></p>
+
+            <figure>
+                <img src="img/03-players-id.png" alt="players-id pair" class="article-img-no-shadow">
+                <figcaption>Players and id pair.</figcaption>
+            </figure>
+
+        </section>
+
+        <section id="sec14">
+            <h3><span>Check legitimacy</span></h3>
+            <p><span>Ideally, this step is where </span><em><span>outliers</span></em><span> and
+                </span><em><span>NA</span></em><span>s are removed. There were lots of “trial and error” in the actual
+                    cleaning
+                    procedure. For the following variables, NAs are strictly prohibited, simply because NAs do not make
+                    sense in
+                    those: </span><code>playerid</code><span>, </span><code>player</code><span>,
+                </span><code>team</code><span>,
+                </span><code>lineupid</code><span>, </span><code>opponent</code><span>,
+                </span><code>opplineupid</code><span>,
+                </span><code>date</code><span>, </span><code>period</code><span>, </span><code>time</code><span>,
+                </span><code>margin</code><span>, </span><code>x</code><span>, </span><code>y</code><span>,
+                </span><code>shottype</code><span>, </span><code>putback</code><span>, </span><code>value</code><span>,
+                </span><code>made</code><span>, </span><code>and1</code><span>.</span></p>
+            <p><span>For the rest of the variables, NAs might be just the suitable candidates for some cells. For
+                    instance,
+                    if
+                    a defender executed no block attempt, it should be </span><code>NA</code><span> instead of
+                </span><code>FALSE</code><span> in </span><code>blocked</code><span>. </span></p>
+            <p><span>Additionally, </span><code>possessionnum</code><span> is deleted as well, since it is the
+                    sequential
+                    order number of the event in-game, rather than “how many passes before the shot.”</span></p>
+            <p><span>Then, a </span><code>summarytools::descr()</code><span> can be performed to get some descriptive
+                    statistics.</span></p>
+
+            <figure>
+                <img src="img/03-shots-descr.png" alt="descriptive stats" class="article-img-no-shadow">
+                <figcaption>Descriptive statistics of shots_dat.</figcaption>
+            </figure>
+
+            <p><span>The real deals are the legitimacy checking for variables. In other words, if things don’t add up,
+                    they
+                    will be examined or may be thrown away. What do they look like?</span></p>
+            <ol>
+                <li><span>Check if </span><code>time</code><span> (the remaining seconds of a quarter, called
+                    </span><code>period</code><span> in the data, though) is between 0 and 720.</span></li>
+                <li><span>Check if a shot is </span><code>made</code><span>, but no one assisted
+                        (</span><code>is.na(assisted)</code><span>).</span></li>
+                <li><span>Check if a shot is </span><code>blocked</code><span>, but no block player is recorded
+                        (</span><code>is.na(block_player)</code><span>).</span></li>
+                <li><span>Check if a shot is </span><code>made</code><span>, but </span><code>blocked</code><span>
+                        simultaneously, which is extremely unlikely in real life.</span></li>
+                <li><span>Check if a shot is </span><code>assisted</code><span>, but no assist player is recorded
+                        (</span><code>is.na(assist_player)</code><span>).</span></li>
+            </ol>
+            <p><span>There should definitely be more common facts to check. Luckily, one entry error was spotted when
+                    checking
+                    the fifth condition.</span></p>
+
+
+            <video width="100%" controls>
+                <source
+                    src="https://videos.nba.com/nba/pbp/media/2021/01/25/0022000257/591/c4167627-a8e5-a879-be14-5daa0ed0dd63_960x540.mp4"
+                    type=video/mp4>
+            </video>
+
+            <p><span>The Philladelphia 76ers player Tobias Harris was assisted by Ben Simmons, but Simmons’ name was
+                    recorded
+                    as </span><code>NA</code><span> here. This was probably caused by a mixed-up
+                </span><code>team</code><span>
+                    and </span><code>opponent</code><span> variables. Harris should be playing for
+                </span><code>PHI</code><span>
+                    and against </span><code>DET</code><span>. It was fixed with some manipulations.</span></p>
+        </section>
+
+        <section id="sec15">
+            <h3><span>Create new features</span></h3>
+            <p><span>As mentioned above, new features are created by splitting a string of </span><code>id</code><span>s
+                    connecting with each other.</span></p>
+            <p><span>Another </span><code>glimpse()</code><span> shows the </span><code>shots_dat</code><span> is now a
+                    188975
+                    by 34 tibble.</span></p>
+            <blockquote>
+                <p><span>If the next step is analysis or model building, there are more standard procedures to do. For
+                        example,
+                        turning some character variables into factors. Nevertheless, saving the tidy data frame into
+                        another
+                        text
+                        file will counteract the effort. </span></p>
+            </blockquote>
+        </section>
+
+        <section id="sec16">
+            <h3><span>Save cleaned data</span></h3>
+            <p><span>The cleaned data is saved in one file as a whole and grouped by </span><code>team</code><span> and
+                </span><code>opponent</code><span>, then split into multiple sub-files. The new data is not that
+                    unbelievably
+                    large (60Mb). Splitting into various files might be overkill.</span></p>
+            <p>&nbsp;</p>
+        </section>
+
+        <section id="sec2">
+            <h2><span>Section 2: Text cleaning with R</span></h2>
+            <blockquote>
+                <p><span>Script: </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/reddit-nba-scraper/reddit-cleaner.R'><span>reddit-cleaner.R</span></a>
+                </p>
+                <p><span>Data: </span><a
+                        href='https://github.com/rexarski/box2box/tree/main/data/nba-reddit'><span>data/nba-reddit/</span></a><span>
+                        raw data stored in .RDS, cleaned data stored in .csv. </span></p>
+            </blockquote>
+            <p><span>The text data scraped from the subreddit is stored in temporary RDS files, named when scraping is
+                    performed.</span></p>
+            <p><span>The daily text data varies in size and length:</span></p>
+
+            <figure>
+                <img src="img/03-reddit.png" alt="reddit thread text" class="article-img-no-shadow">
+                <figcaption>Text data from /r/nba</figcaption>
+            </figure>
+
+            <p><span>The logic here is clear:</span></p>
+            <ul>
+                <li><span>Iterate all files ending with </span><code>.RDS</code><span> in the directory.</span></li>
+                <li><span>Load one file at a time to get the R list object inside it.</span></li>
+                <li><span>Trim all variables except the text data (the thread title, thread text, and comments).</span>
+                </li>
+                <li><span>Turn the structure into a corpus.</span></li>
+                <li><span>Process the corpus by removing whitespaces, punctuations, stopwords, and lowering the
+                        letters.</span>
+                </li>
+                <li><span>Last but not least, use </span><code>tidytext::tidy()</code><span> to transform the corpus
+                        back to
+                        the
+                        familiar tidied tibble.</span></li>
+                <li><span>No labels are attached to the text data for topic modeling. Instead, the Bag-of-Words are
+                        generated
+                        and stored.</span></li>
+            </ul>
+            <p><span>The final look of a daily Reddit text data is like this:</span></p>
+            <figure>
+                <img src="img/03-tidy-text.png" alt="tidy text" class="article-img-no-shadow">
+                <figcaption>Bag-of-Words of one day's data.</figcaption>
+            </figure>
+        </section>
+
+        <section id="sec21">
+            <h3><span>cron job update</span></h3>
+            <blockquote>
+                <p><span>Script: </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/reddit-nba-scraper/cron-job.r'><span>cron-job.r</span></a>
+                </p>
+            </blockquote>
+            <p><span>Since the Reddit scraping script runs once a day in the evening, it might be a good idea to update
+                    it
+                    with text processing commands, such that the tidy text data will be saved to remote as well.
+                    Besides,
+                    the line
+                    that saves a temporary list into </span><code>.RDS</code><span> file is removed.</span></p>
+
+            <figure>
+                <img src="img/03-cron-job-update.png" alt="cronjob" class="article-img-no-shadow">
+                <figcaption>Updated cron job runs with no issue.</figcaption>
+            </figure>
+
+            <p><span>No issue is detected in the automation.</span></p>
+        </section>
+
+        <section id="sec3">
+            <h2><span>Section 3: Record cleaning with Python</span></h2>
+            <blockquote>
+                <p><span>Script: </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/nba-player-tweet-scraper/tweet-clean.ipynb'><span>tweet-clean.ipynb</span></a>
+                </p>
+                <p><span>Data (raw): </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-tweets/player-accounts-br.csv'><span>data/nba-tweets/player-accounts-br.csv</span></a><span>,
+                    </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-tweets/player-accounts.csv'><span>data/nba-tweets/player-accounts.csv</span></a>
+                </p>
+                <p><span>Data (cleaned): </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-tweets/player-accounts-cleaned.csv'><span>data/nba-tweets/player-accounts-cleaned.csv</span></a>
+                </p>
+            </blockquote>
+            <p><span>The raw data of consists of two files:</span></p>
+            <ul>
+                <li><code>player-accounts-br.csv</code><span> contains current and retired players’ names and their
+                        Twitter
+                        account handles.</span></li>
+                <li><code>player-accounts.csv</code><span> includes current players’ name and more metadata such as
+                        follower
+                        number and register time.</span></li>
+            </ul>
+            <p><span>The target output for this part is a list of name-handle pairs with no duplicates. The cleaning
+                    procedures are in the following order:</span></p>
+            <ul>
+                <li><span>Load two files individually.</span></li>
+                <li><span>Keep names and handles as the only two columns.</span></li>
+                <li><span>Rename the columns as </span><code>name</code><span> and </span><code>account</code><span> so
+                        that
+                        the
+                        two data frames can be binded together.</span></li>
+                <li><span>Remove rows with </span><code>NaN</code><span> in </span><code>account</code><span>.</span>
+                </li>
+                <li><span>Remove duplicate rows which are identical in both </span><code>name</code><span> and
+                    </span><code>account</code><span>.</span></li>
+                <li><span>Investigate some rows with a duplicate </span><code>name</code><span> but a different
+                    </span><code>account</code><span>. This could be either the player changed their handles, or the
+                        initial
+                        entries were simply incorrect. Remove the outdated/incorrect records.</span></li>
+            </ul>
+            <figure>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style='text-align:right;'>&nbsp;</th>
+                            <th style='text-align:right;'><span>name</span></th>
+                            <th style='text-align:right;'><span>account</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style='text-align:right;'><span>295</span></td>
+                            <td style='text-align:right;'><span>Deonte Burton</span></td>
+                            <td style='text-align:right;'><span>DeonteBurton</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>618</span></td>
+                            <td style='text-align:right;'><span>Deonte Burton</span></td>
+                            <td style='text-align:right;'><span>DeeBurton30</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>1065</span></td>
+                            <td style='text-align:right;'><span>Devin Booker</span></td>
+                            <td style='text-align:right;'><span>DevinBooker31</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>1303</span></td>
+                            <td style='text-align:right;'><span>Devin Booker</span></td>
+                            <td style='text-align:right;'><span>DevinBook</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>1406</span></td>
+                            <td style='text-align:right;'><span>Marcus Thornton</span></td>
+                            <td style='text-align:right;'><span>M3Thornton</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>2184</span></td>
+                            <td style='text-align:right;'><span>Marcus Thornton</span></td>
+                            <td style='text-align:right;'><span>OfficialMT23</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>485</span></td>
+                            <td style='text-align:right;'><span>Mike Conley</span></td>
+                            <td style='text-align:right;'><span>mconley11</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>1683</span></td>
+                            <td style='text-align:right;'><span>Mike Conley</span></td>
+                            <td style='text-align:right;'><span>MCONLEY10</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>1992</span></td>
+                            <td style='text-align:right;'><span>Tony Mitchell</span></td>
+                            <td style='text-align:right;'><span>TonyMitchUNENO</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>1993</span></td>
+                            <td style='text-align:right;'><span>Tony Mitchell</span></td>
+                            <td style='text-align:right;'><span>tmitch_5</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </figure>
+            <ul>
+                <li><span>Investigate some other rows with a duplicated </span><code>account</code><span> but a
+                        different
+                    </span><code>name</code><span>. There is no omnipotent solution to this. But the rough idea is to
+                        split
+                        the
+                    </span><code>name</code><span> by whitespace and remove the ones of length 1.</span></li>
+            </ul>
+            <figure>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style='text-align:right;'>&nbsp;</th>
+                            <th style='text-align:right;'><span>name</span></th>
+                            <th style='text-align:right;'><span>account</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style='text-align:right;'><span>1442</span></td>
+                            <td style='text-align:right;'><span>Justin James</span></td>
+                            <td style='text-align:right;'><span>1JustinJames</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>212</span></td>
+                            <td style='text-align:right;'><span>JJ</span></td>
+                            <td style='text-align:right;'><span>1JustinJames</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>2224</span></td>
+                            <td style='text-align:right;'><span>Andrew Wiggins</span></td>
+                            <td style='text-align:right;'><span>22wiggins</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>397</span></td>
+                            <td style='text-align:right;'><span>andrew wiggins</span></td>
+                            <td style='text-align:right;'><span>22wiggins</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>1594</span></td>
+                            <td style='text-align:right;'><span>Kent Bazemore</span></td>
+                            <td style='text-align:right;'><span>24Bazemore</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>...</span></td>
+                            <td style='text-align:right;'><span>...</span></td>
+                            <td style='text-align:right;'><span>...</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>1378</span></td>
+                            <td style='text-align:right;'><span>Willy Hernangómez</span></td>
+                            <td style='text-align:right;'><span>willyhg94</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>490</span></td>
+                            <td style='text-align:right;'><span>Thad Young</span></td>
+                            <td style='text-align:right;'><span>yungsmoove21</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>2247</span></td>
+                            <td style='text-align:right;'><span>Thaddeus Young</span></td>
+                            <td style='text-align:right;'><span>yungsmoove21</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>38</span></td>
+                            <td style='text-align:right;'><span>Zhaire</span></td>
+                            <td style='text-align:right;'><span>zhaire_smith</span></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align:right;'><span>1408</span></td>
+                            <td style='text-align:right;'><span>Zhaire Smith</span></td>
+                            <td style='text-align:right;'><span>zhaire_smith</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </figure>
+            <ul>
+                <li><span>Remove all rows with emojis 😆🔥٩(</span><sup><span>‿</span></sup><span>)۶ in
+                    </span><code>name</code><span>.</span></li>
+                <li><span>Keep the first one if there are still duplicate pairs.</span></li>
+                <li><span>Save the cleaned data frame as a CSV.</span></li>
+            </ul>
+            <p>&nbsp;</p>
+        </section>
+
+        <section id="sec4">
+            <h2><span>Section 4: Text (CSV) cleaning with Python</span></h2>
+            <blockquote>
+                <p><span>Script: </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/nba-player-tweet-scraper/tweet-clean.ipynb'><span>tweet-clean.ipynb</span></a>
+                </p>
+                <p><span>Data (raw): </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-tweets/player-tweets.csv'><span>data/nba-tweets/player-tweets.csv</span></a><span>,
+                    </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-tweets/player-tweets-2.csv'><span>data/nba-tweets/player-tweets-2.csv</span></a>
+                </p>
+                <p><span>Data (cleaned): </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-tweets/tweets-corpus-cleaned.csv'><span>data/nba-tweets/tweets-corpus-cleaned.csv</span></a>
+                </p>
+            </blockquote>
+            <p><span>Two CSV files, each containing around 500 tweets, are loaded.</span></p>
+            <p><span>The label picked here is the last column of CSV tweets data, </span><code>urls</code><span> which
+                    stores
+                    a list of dictionaries of URLs that appeared in a tweet. A funny thing about loading the CSV into a
+                    pandas
+                    data frame is that the “list” is loaded as a string type but starting with a
+                </span><code>[</code><span>
+                    and
+                    ending with a </span><code>]</code><span>. The trick to determining if there is a URLis to check if
+                    the
+                    length
+                    of </span><code>url</code><span> is equal to 2.</span></p>
+            <p><code>CountVectorizer</code><span> is then utilized to generate the Bag-of-Words from the data frame.
+                    Note
+                    that
+                    only a maximal number of 500 features are kept.</span></p>
+            <p><span>Then the Document-term matrix is generated, with a column of boolean variable
+                </span><code>contains_url</code><span> attached to the first column.</span></p>
+
+            <figure>
+                <img src="img/03-dtm.png" alt="dtm" class="article-img-no-shadow">
+                <figcaption>A DTM of NBA players' tweets.</figcaption>
+            </figure>
+
+            <p><span>Afterward, it is saved to the destination directory.</span></p>
+        </section>
+
+        <section id="sec5">
+            <h2><span>Section 5: Text (corpus) cleaning with Python</span></h2>
+            <blockquote>
+                <p><span>Script: </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/nba-player-tweet-scraper/tweet-clean.ipynb'><span>tweet-clean.ipynb</span></a>
+                </p>
+                <p><span>Data (raw): </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-news-source/news-2021-09-25.csv'><span>data/nba-news-source/news-2021-09-25.csv</span></a>
+                </p>
+                <p><span>Data (cleaned): </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/data/nba-news-source/dtm-2021-09-25.csv'><span>data/nba-news-source/dtm-2021-09-25.csv</span></a><span>
+                    </span></p>
+            </blockquote>
+            <p><span>Strictly speaking, there is no text corpus suitable for text preprocessing based on the current
+                    data
+                    collection. A quick and dirty approach is to apply NewsAPI and grab some news articles from
+                    different
+                    sources.</span></p>
+            <blockquote>
+                <p><span>Exposing API in the script is a bad idea.</span></p>
+            </blockquote>
+            <p><span>The data contains news headlines from August 25 to September 25, 2021, with a range of sources of
+                    SB
+                    Nation, ESPN, Fox Sports, and Bleacher Report.</span></p>
+            <figure>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th><span>Source</span></th>
+                            <th><span>Date</span></th>
+                            <th><span>Title</span></th>
+                            <th><span>Headline</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span>0</span></td>
+                            <td><span>ESPN</span></td>
+                            <td><span>2021-09-02</span></td>
+                            <td><span>What if Skills that could change the games of ...</span></td>
+                            <td><span>What if Luka was automatic from the stripe Wha...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>1</span></td>
+                            <td><span>ESPN</span></td>
+                            <td><span>2021-09-02</span></td>
+                            <td><span>NBA eyes strict rules for unvaccinated players</span></td>
+                            <td><span>Unvaccinated NBA players will have lockers as ...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>2</span></td>
+                            <td><span>ESPN</span></td>
+                            <td><span>2021-09-21</span></td>
+                            <td><span>Redick to retire after seasons in NBA</span></td>
+                            <td><span>JJ Redick who played for the Pelicans and Mave...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>3</span></td>
+                            <td><span>ESPN</span></td>
+                            <td><span>2021-08-25</span></td>
+                            <td><span>Lapchick NBA sets high bar for health policies...</span></td>
+                            <td><span>The NBA has played a leading role in men s pro...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>4</span></td>
+                            <td><span>ESPN</span></td>
+                            <td><span>2021-09-24</span></td>
+                            <td><span>Sources Ginobili returning to Spurs as advisor</span></td>
+                            <td><span>Four time NBA champion Manu Ginobili one of th...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>...</span></td>
+                            <td><span>...</span></td>
+                            <td><span>...</span></td>
+                            <td><span>...</span></td>
+                            <td><span>...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>95</span></td>
+                            <td><span>Bleacher Report</span></td>
+                            <td><span>2021-09-14</span></td>
+                            <td><span>NBA Re Draft Does Jayson Tatum or Donovan Mitc...</span></td>
+                            <td><span>In the instant analysis culture of today s spo...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>96</span></td>
+                            <td><span>Bleacher Report</span></td>
+                            <td><span>2021-09-15</span></td>
+                            <td><span>Ben Simmons Rumors ers Expect PG to Play Next ...</span></td>
+                            <td><span>Despite a href https nba nbcsports com report ...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>97</span></td>
+                            <td><span>Bleacher Report</span></td>
+                            <td><span>2021-09-14</span></td>
+                            <td><span>NBA Trade Rumors John Wall Rockets Mutually Ag...</span></td>
+                            <td><span>John Wall and the Houston Rockets have reporte...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>98</span></td>
+                            <td><span>Bleacher Report</span></td>
+                            <td><span>2021-08-25</span></td>
+                            <td><span>Woj Mike Budenholzer Bucks Agree to New Year C...</span></td>
+                            <td><span>Mike Budenholzer will remain with the Milwauke...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>99</span></td>
+                            <td><span>Bleacher Report</span></td>
+                            <td><span>2021-09-22</span></td>
+                            <td><span>NBA Offseason Moves with the Most Bust Potenti...</span></td>
+                            <td><span>Every offseason transaction carries downside r...</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </figure>
+            <p><span>Due to the API limit, only 100 articles can be retrieved at a time.</span></p>
+            <p><span>The features are extracted from the </span><code>Headline</code><span> and used to generate another
+                    sparse Document-term matrix. Naturally, the </span><code>Source</code><span> column is attached to
+                    the
+                    end as
+                    the label.</span></p>
+        </section>
+
+        <section id="sec6">
+            <h2><span>Conclusion</span></h2>
+            <p><span>There is nothing too spectacular to talk about in data cleaning. The cleaning process itself is
+                    very
+                    messy and chaotic, to be honest. But it would definitely help later. It is just like a
+                    ladder.</span>
+            </p>
+        </section>
+
+        <hr>
+
+        <footer class="footer">
+            <p>Copyright &copy; 2021 <a href="https://qrui.xyz">Ruì Qiū</a></p>
+        </footer>
+    </article>
+
+    <script src="js/script.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [[' $', '$'], ['\\(', '\\)']]
+            }
+        };</script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</body>
+
+</html>

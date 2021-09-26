@@ -14,7 +14,7 @@
   - [x] Google Trends
   - [x] BGM
   - Supporting data ⏸️
-- [ ] Data Cleaning
+- [x] Data Cleaning
 - [ ] Exploring Data
 - [ ] Clustering
 - [ ] ARM & Networking
