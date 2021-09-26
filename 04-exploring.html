@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Exploring Data - Rui Qiu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="sidebar">
+    <nav>
+        ◀️ <a href="index.html" class="return-button">Back</a>
+        <ul>
+            <li>
+                <a href="#location">Shot locations</a>
+                <ul>
+                    <li><a href="#was">Wizards</a></li>
+                </ul>
+            </li>
+            <li><a href="#time">Shot times</a></li>
+            <li><a href="#topwords">Frequent words</a></li>
+            <li><a href="#urls">Has URLs</a></li>
+            <li><a href="#cor">DTM correlations</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+        </ul>
+
+        <svg xmlns=" http://www.w3.org/2000/svg">
+            <path />
+        </svg>
+
+    </nav>
+    <article id="top">
+        <div class="subheading">Part 4: Exploring Data</div>
+        <h1>Data is (not always)
+            beautiful.</h1>
+
+        <p>Rui Qiu</p>
+        <p>Updated on 2021-09-26.</p>
+        <br>
+
+        <p><span>There are so many aspects to cover when it comes to exploratory data analysis. Some might give the
+                analyst an unseen new perspective, and some might need their prior knowledge before plotting.</span></p>
+
+        <blockquote>
+            <p><span>Script: </span><a
+                    href='https://github.com/rexarski/box2box/blob/main/nba-xT-model/shots-viz.R'><span>shots-viz.R</span></a>
+            </p>
+            <p><span>Although it is called "shots-viz", it contains all the coding used in this part.</span></p>
+        </blockquote>
+
+        <section id="location">
+            <h2><span>Location-based shot attempts</span></h2>
+            <p><span>Back to the very core of the model to build, it is vital to show shot attempts whether it is a
+                    success
+                    or
+                    failure.</span></p>
+
+            <figure>
+                <img src="img/04-coordinates.png" alt="coordinates" class="article-img">
+                <figcaption>Shot attempts coordinates of all 30 teams.
+                </figcaption>
+            </figure>
+
+            <blockquote>
+                <p><span>To keep the plot visually pleasing, the area restricted by the coordinates is made close to a
+                        square.
+                        Some records are backcourt &quot;yeets,&quot; which usually happen when a quarter runs out and
+                        the
+                        offensive
+                        team does not have enough time to organize an attack. In this case, the ball-controlling player
+                        will
+                        desperately throw the ball as hard as towards the rim to try his luck. Thus some of the data are
+                        discarded
+                        as a result.</span></p>
+            </blockquote>
+        </section>
+        <section id="was">
+            <h3><span>Washington Wizards&#39; shooting locations</span></h3>
+            <p><span>As the data are split by teams, it is very handy to load and plot a team&#39;s performance in a
+                    season.
+                    Let&#39;s take Washington Wizards as an example.</span></p>
+
+            <figure>
+                <img src="img/04-was-shots.png" alt="was-shots" class="article-img">
+                <figcaption>Shot attempts coordinates of Washington Wizards.
+                </figcaption>
+            </figure>
+
+        </section>
+
+        <section id="time">
+            <h2><span>Time-based shot attempts</span></h2>
+            <p><span>Another angle to look at the data as a whole is to check when those shots are taken. An NBA has
+                    four
+                    quarters, and each quarter has 12 minutes. If the score is a draw at the end of 4 quarters, another
+                    5
+                    minutes
+                    of overtime (OT) will be added to the game. The number of OTs can go on and on. Each time has no
+                    more
+                    than 24
+                    seconds to run the attack as long as they still have possession of the ball. So, in general, the
+                    distribution
+                    should be uniform from the second 0 to 2880. But due to some tactical reasons, one team might hold
+                    the
+                    ball a
+                    little longer than or shorter (like run-and-gun), so that&#39;s where the teams differ.</span></p>
+            <figure>
+                <img src="img/04-shot-time.png" alt="shot times" class="article-img">
+                <figcaption>Shot time distribution of all 30 teams.
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="topwords">
+            <h2><span>Most frequent words in /r/nba</span></h2>
+            <p><span>This is data from one day only. The plot reflects what the popular topics are about on that
+                    day.</span>
+            </p>
+            <figure>
+                <img src="img/04-top-words.png" alt="reddit top words" class="article-img">
+                <figcaption>Just data from one day.
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="urls">
+            <h2><span>With or without URLs</span></h2>
+            <p><span>The label of players&#39; tweets is whether a tweet contains a URL. The bar chart shows that
+                    it&#39;s
+                    almost a 50-50 situation. Plain and simple.</span></p>
+            <figure>
+                <img src="img/04-tweets-with-urls.png" alt="tweets urls" class="article-img">
+                <figcaption>Basically a 50-50.
+                </figcaption>
+            </figure>
+            <blockquote>
+                <p><span>For the players&#39; name and id, frankly speaking, there is nothing to visualize for now.
+                        It&#39;s
+                        just a reference.</span></p>
+            </blockquote>
+        </section>
+
+        <section id="cor">
+            <h2><span>Correlation of top features in a DTM</span></h2>
+            <p><span>For the last plot, it&#39;s somewhat interesting to see the correlation between the frequent
+                    features
+                    of
+                    a document-term matrix. The more blue the dot is, the more positively correlated the two terms are,
+                    like
+                    &quot;los&quot; and &quot;angeles.&quot;</span></p>
+            <figure>
+                <img src="img/04-corrplot.png" alt="correlation" class="article-img">
+                <figcaption>Again, just data from one day.
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="conclusion">
+            <h2><span>In the end</span></h2>
+            <p><span>To conclude, the plots drawn in this part of the portfolio are rather sketchy. Nonetheless, they
+                    still
+                    managed to keep some formality, as the plotting style. Are there any brilliant observations emerging
+                    from the
+                    data? Maybe not. Still, this is just a preliminary step before modeling.</span></p>
+        </section>
+
+        <hr>
+
+        <footer class="footer">
+            <p>Copyright &copy; 2021 <a href="https://qrui.xyz">Ruì Qiū</a></p>
+        </footer>
+    </article>
+
+    <script src="js/script.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [[' $', '$'], ['\\(', '\\)']]
+            }
+        };</script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</body>
+
+</html>

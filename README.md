@@ -15,7 +15,7 @@
   - [x] BGM
   - Supporting data ⏸️
 - [x] Data Cleaning
-- [ ] Exploring Data
+- [x] Exploring Data
 - [ ] Clustering
 - [ ] ARM & Networking
 - [ ] Decision Tree
