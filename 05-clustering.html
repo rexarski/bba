@@ -19,12 +19,12 @@
                     <li><a href="#13hierarchical">Hierarchical clustering</a></li>
                     <li><a href="#14distances">Distance matrices</a></li>
                     <li><a href="#15optimalk">Optimal $\ k$</a>
-                        <ul>
+                        <!-- <ul>
                             <li><a href="#151elbow">Elbow method</a></li>
                             <li><a href="#152silhouette">Silhouette score</a></li>
                             <li><a href="#153gap">Gap statistic</a></li>
                             <li><a href="#154nbclust"><code>fviz_nbclust()</code></a></li>
-                        </ul>
+                        </ul> -->
                     </li>
                     <li><a href="#16prediction">Cluster prediction</a></li>
                     <li><a href="#17summary">Summary</a></li>
@@ -425,19 +425,21 @@
                     you the optimal $\ k$ in plain text.</span></p>
 
             <pre>
-*** : The Hubert index is a graphical method of determining
-    the number of clusters. In the plot of Hubert index, we
-    seek a significant knee that corresponds to a significant
-    increase of the value of the measure i.e the significant
+*** : The Hubert index is a graphical method of
+    determining the number of clusters. In the plot
+    of Hubert index, we seek a significant knee
+    that corresponds to a significant increase of
+    the value of the measure i.e the significant
     peak in Hubert index second differences plot.
 
-*** : The D index is a graphical method of determining the
-    number of clusters. In the plot of D index, we seek a
-    significant knee (the significant peak in Dindex second
-    differences plot) that corresponds to a significant
-    increase of the value of the measure.
+*** : The D index is a graphical method of determining
+    the number of clusters. In the plot of D index, we
+    seek a significant knee (the significant peak in
+    Dindex second differences plot) that corresponds
+    to a significant increase of the value of the
+    measure.
 
-*******************************************************************
+*****************************************************
 * Among all indices:
 * 7 proposed 2 as the best number of clusters
 * 8 proposed 3 as the best number of clusters
@@ -446,10 +448,11 @@
 
                 ***** Conclusion *****
 
-* According to the majority rule, the best number of clusters is  3
+* According to the majority rule, the best number of
+  clusters is  3
 
 
-*******************************************************************
+*****************************************************
 Among all indices:
 ===================
 * 2 proposed  0 as the best number of clusters
@@ -461,7 +464,8 @@ Among all indices:
 
 Conclusion
 =========================
-* According to the majority rule, the best number of clusters is  3 .
+* According to the majority rule, the best number of
+  clusters is  3 .
             </pre>
 
             <p>
@@ -702,8 +706,6 @@ Conclusion
                             <th>&nbsp;</th>
                             <th><code>k=2</code></th>
                             <th><code>k=3</code></th>
-                            <th><code>k=4</code></th>
-                            <th><code>k=5</code></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -711,27 +713,53 @@ Conclusion
                             <td><span>homogeneity score (</span><code>CountVectorizer</code><span>)</span></td>
                             <td><span>0.2914526756355663</span></td>
                             <td><span>0.36946391298809556</span></td>
-                            <td><span>0.29680912347283095</span></td>
-                            <td><span>0.45727954760694456</span></td>
                         </tr>
                         <tr>
                             <td><span>Silhouette score (</span><code>CountVectorizer</code><span>)</span></td>
                             <td><span>0.16836203241503322</span></td>
                             <td><span>0.17904908336242356</span></td>
-                            <td><span>0.17863738778270835</span></td>
-                            <td><span>0.08412074984413664</span></td>
                         </tr>
                         <tr>
                             <td><span>homogeneity score (</span><code>TfidfVectorizer</code><span>)</span></td>
                             <td><span>0.06146851457954772</span></td>
                             <td><span>0.39324808032485964</span></td>
-                            <td><span>0.5800599275998554</span></td>
-                            <td><span>0.5257363389005074</span></td>
                         </tr>
                         <tr>
                             <td><span>Silhouette score (</span><code>TfidfVectorizer</code><span>)</span></td>
                             <td><span>0.029815094893238428</span></td>
                             <td><span>0.034968169736253746</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </figure>
+
+            <figure>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th><code>k=4</code></th>
+                            <th><code>k=5</code></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span>homogeneity score (</span><code>CountVectorizer</code><span>)</span></td>
+                            <td><span>0.29680912347283095</span></td>
+                            <td><span>0.45727954760694456</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Silhouette score (</span><code>CountVectorizer</code><span>)</span></td>
+                            <td><span>0.17863738778270835</span></td>
+                            <td><span>0.08412074984413664</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>homogeneity score (</span><code>TfidfVectorizer</code><span>)</span></td>
+                            <td><span>0.5800599275998554</span></td>
+                            <td><span>0.5257363389005074</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Silhouette score (</span><code>TfidfVectorizer</code><span>)</span></td>
                             <td><span>0.04392759797869041</span></td>
                             <td><span>0.04084535197279959</span></td>
                         </tr>
@@ -813,10 +841,14 @@ Conclusion
                     fluctuation in the size of the silhouette plots.</span></p>
 
             <pre>
-For n_clusters = 2 The average silhouette_score is : 0.7721933252661253
-For n_clusters = 3 The average silhouette_score is : 0.741629848098952
-For n_clusters = 4 The average silhouette_score is : 0.7170194571369254
-For n_clusters = 5 The average silhouette_score is : 0.47913326363536746
+For n_clusters = 2
+The average silhouette_score is : 0.7721933252661253
+For n_clusters = 3
+The average silhouette_score is : 0.741629848098952
+For n_clusters = 4
+The average silhouette_score is : 0.7170194571369254
+For n_clusters = 5
+The average silhouette_score is : 0.47913326363536746
             </pre>
 
             <p><span>Although k=2 delivers a higher average Silhouette score, its lead against k=4 is not significant.
@@ -888,39 +920,39 @@ For n_clusters = 5 The average silhouette_score is : 0.47913326363536746
             <p><span>The tf-idf data frame containing all the information of 400 text segements is:</span></p>
 
             <pre>
-        # A tibble: 10,172 × 7
-           document term        count    tf   idf tf_idf source
-           <chr>    <chr>       <dbl> <dbl> <dbl>  <dbl> <chr>
-         1 text303  cinderella      7 0.259  5.99  1.55  Polygon
-         2 text325  castlevania     5 0.179  5.99  1.07  Polygon
-         3 text89   reid            2 0.154  5.99  0.922 ESPN
-         4 text308  battlefield     3 0.15   5.99  0.899 Polygon
-         5 text21   ap              2 0.154  5.30  0.815 ESPN
-         6 text106  storage         5 0.147  5.30  0.779 MacRumors
-         7 text50   nhl             3 0.158  4.89  0.773 ESPN
-         8 text27   trolls          2 0.125  5.99  0.749 ESPN
-         9 text27   bunch           2 0.125  5.99  0.749 ESPN
-        10 text47   redick          2 0.125  5.99  0.749 ESPN
-        # … with 10,162 more rows
+# A tibble: 10,172 × 7
+document term        count    tf   idf tf_idf source
+<chr>    <chr>       <dbl> <dbl> <dbl>  <dbl> <chr>
+1 text303  cinderella      7 0.259  5.99  1.55  Polygon
+2 text325  castlevania     5 0.179  5.99  1.07  Polygon
+3 text89   reid            2 0.154  5.99  0.922 ESPN
+4 text308  battlefield     3 0.15   5.99  0.899 Polygon
+5 text21   ap              2 0.154  5.30  0.815 ESPN
+6 text106  storage         5 0.147  5.30  0.779 MacRumors
+7 text50   nhl             3 0.158  4.89  0.773 ESPN
+8 text27   trolls          2 0.125  5.99  0.749 ESPN
+9 text27   bunch           2 0.125  5.99  0.749 ESPN
+10 text47   redick          2 0.125  5.99  0.749 ESPN
+# … with 10,162 more rows
                     </pre>
 
             <p><span>The per-topic-per-word (gamma) probability for all topic-document combination is:</span></p>
 
             <pre>
-        # A tibble: 1,600 × 3
-           document topic    gamma
-           <chr>    <int>    <dbl>
-         1 text1        1 0.000808
-         2 text2        1 0.00136
-         3 text3        1 0.996
-         4 text4        1 0.00143
-         5 text5        1 0.00123
-         6 text6        1 0.000891
-         7 text7        1 0.000834
-         8 text8        1 0.000957
-         9 text9        1 0.469
-        10 text10       1 0.00117
-        # … with 1,590 more rows
+# A tibble: 1,600 × 3
+document topic    gamma
+<chr>    <int>    <dbl>
+1 text1        1 0.000808
+2 text2        1 0.00136
+3 text3        1 0.996
+4 text4        1 0.00143
+5 text5        1 0.00123
+6 text6        1 0.000891
+7 text7        1 0.000834
+8 text8        1 0.000957
+9 text9        1 0.469
+10 text10       1 0.00117
+# … with 1,590 more rows
                     </pre>
 
             <p><span>The visualization of top words by topic is listed below.</span></p>

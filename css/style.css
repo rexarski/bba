@@ -284,3 +284,9 @@ figcaption {
     margin: 10px auto 30px auto;
     text-align: center;
 }
+
+.sidebar a {
+    color: #222;
+    text-decoration: none;
+    font-size: 12px;
+}
