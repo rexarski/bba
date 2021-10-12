@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Clustering - Rui Qiu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="sidebar">
+    <nav>
+        ◀️ <a href="index.html" class="return-button">Back</a>
+        <ul>
+            <li>
+                <a href="#01nba">Record Clustering</a>
+                <ul>
+                    <li><a href="#11cleaning">Data cleaning</a></li>
+                    <li><a href="#12kmeans">K-means clustering</a></li>
+                    <li><a href="#13hierarchical">Hierarchical clustering</a></li>
+                    <li><a href="#14distances">Distance matrices</a></li>
+                    <li><a href="#15optimalk">Optimal $\ k$</a>
+                        <ul>
+                            <li><a href="#151elbow">Elbow method</a></li>
+                            <li><a href="#152silhouette">Silhouette score</a></li>
+                            <li><a href="#153gap">Gap statistic</a></li>
+                            <li><a href="#154nbclust"><code>fviz_nbclust()</code></a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#16prediction">Cluster prediction</a></li>
+                    <li><a href="#17summary">Summary</a></li>
+                </ul>
+            </li>
+            <li><a href="#02text">Text clustering</a></li>
+            <ul>
+                <li><a href="#21cleaning">Data cleaning</a></li>
+                <li><a href="#22kmeans">K-means clustering</a></li>
+                <li><a href="#23dbscan">DBSCAN</a></li>
+                <li><a href="#24hierarchical">Hierarchical clustering</a></li>
+                <li><a href="#25optimalk">Optimal $\ k$</a></li>
+                <li><a href="#26summary">Summary</a></li>
+            </ul>
+            <li><a href=" #03topic">Topic modeling</a></li>
+            <li><a href="#references">References</a></li>
+        </ul>
+
+        <svg xmlns=" http://www.w3.org/2000/svg">
+            <path />
+        </svg>
+
+    </nav>
+    <article id="top">
+        <div class="subheading">Part 5: Clustering</div>
+        <h1>Agree to disagree:<br>The uncertainty, the ambiguity, and the clustering algorithm</h1>
+
+        <p>Rui Qiu</p>
+        <p>Updated on 2021-10-11.</p>
+        <br>
+
+        <p><span>Welcome back to the chapter on learning, practicing, and finding the limitation of the clustering
+                algorithm. For now, the whole portfolio seems to be deviating from </span><a
+                href='/01-intro.html#questions'><span>the original dozen questions</span></a><span> raised.
+                Nevertheless, the
+                overall goal is to showcase the capability as a data scientist, isn’t it?</span></p>
+        <p><span>Back to the topic, the focus for this part of the portfolio is to apply various clustering algorithms
+                with multiple sets of metrics, methods, and parameters to approximate the similarity among items. The
+                items
+                here are (1) NBA players active in the last regular season (2020-2021); (2) News titles and headlines
+                from
+                four websites within the time frame of a month.</span></p>
+        <p><span>Since the initially collected data won’t fit in well here, new waves of data are assembled in order to
+                accomplish these tasks. The details will be mentioned below.</span></p>
+        <p>&nbsp;</p>
+        <blockquote>
+            <ul>
+                <li><span>GitHub repo: </span><a href='https://github.com/rexarski/box2box'><span>box2box</span></a>
+                </li>
+                <li><span>R script for clustering and predictions: </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/nba-player-clustering/clustering.R'><span>clustering.R</span></a>
+                </li>
+                <li><span>Python script for clustering: </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/nba-news-clustering/clustering.ipynb'><span>clustering.ipynb</span></a>
+                </li>
+                <li><span>R script for topic modeling: </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/nba-news-clustering/topic-modeling.R'><span>topic-modeling.R</span></a>
+                </li>
+            </ul>
+        </blockquote>
+        <p>&nbsp;</p>
+
+        <section id="01nba">
+            <h2><span>1. Clustering NBA players by their stats</span></h2>
+
+            <p><span>The data comes directly from </span><a
+                    href='https://www.basketball-reference.com/leagues/NBA_2021_per_game.html'><span>Basketball
+                        Reference</span></a><span>. This is because the previously cleaned record data from the last
+                    chapter consist
+                    of lots of non-numeric data. Specifically, the categorical data are used to describe the shot
+                    attempt
+                    scenario.</span></p>
+            <p><span>So for the data used this time, these are elementary but thorough statistics appearing in any box
+                    score
+                    of a basketball game. They are nothing “advanced” like points per 36 minutes, etc. However, it’s
+                    undeniable
+                    that these numeric values describe the playing style of a player. (</span><strong><span>Honestly,
+                        stats don’t
+                        lie, but they don’t tell the whole story.</span></strong><span>) In this way, hopefully, they
+                    can tell the
+                    playing position in the game. </span></p>
+        </section>
+
+        <section id="11cleaning">
+            <h3><span>1.1 Data cleaning</span></h3>
+
+            <p><span>You can access the raw data set with the link below:</span></p>
+            <blockquote>
+                <ul>
+                    <li><a
+                            href='https://github.com/rexarski/box2box/blob/main/nba-player-clustering/nba-2021-per-game-stats.csv'><span>nba-2021-per-game-stats.csv</span></a>
+                    </li>
+                </ul>
+            </blockquote>
+            <p><span>The preliminary cleaning contains three major tasks:</span></p>
+            <ol>
+                <li><span>Keep the total statistics if a player got transferred from Team A to Team B within the
+                        season.</span>
+                </li>
+                <li><span>Clean the player’s name.</span></li>
+                <li><span>Ideally, the label will be the player’s position, so we remove some variables having nothing
+                        to with
+                        the position, such as rank, team, and position (itself).</span></li>
+                <li><span>Drop players with missing data. (Very few players with limited playing minutes have this
+                        trait.)</span></li>
+            </ol>
+
+            <p><span>The variables before cleaning:</span></p>
+            <figure>
+                <img src="img/05-01-glimpse-of-stats.png" alt="glimpse-of-stats" class="article-img-no-shadow">
+                <figcaption>540 rows, 28 columns.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+            <p><span>The variables after cleaning:</span></p>
+            <figure>
+                <img src="img/05-01-glimpse-of-stats-2.png" alt="glimpse-of-stats-2" class="article-img-no-shadow">
+                <figcaption>503 rows, 26 columns.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="12kmeans">
+            <h3><span>1.2 K-means clustering with different $\ k$ values</span></h3>
+
+            <p><span>A re-usable function </span><code>iter_kmeans()</code><span> is defined to take in the data, the
+                    value of $\ k$, a string “flag” remark, and the detailed caption, and outputs the
+                    clustering visualization.</span>
+            </p>
+
+            <figure>
+                <img src="img/05-02-all-cluster-k2.png" alt="all-cluster-k2" class="article-img">
+                <figcaption>k = 2<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/05-02-all-cluster-k3.png" alt="all-cluster-k3" class="article-img">
+                <figcaption>k = 3<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/05-02-all-cluster-k4.png" alt="all-cluster-k4" class="article-img">
+                <figcaption>k = 4<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/05-02-all-cluster-k5.png" alt="all-cluster-k5" class="article-img">
+                <figcaption>k = 5<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>Since we aim to cluster the data by their playing position, the clustering results shown above are
+                    more
+                    or less dominated by playing time. It’s pretty apparent players clustered on the right-hand side of
+                    the plot
+                    are generally starters. In contrast, the ones on the left are benchwarmers mostly. It is not hard to
+                    understand that players who have fewer opportunities have a high tendency to be short in stats.
+                    Moreover, the
+                    clusters generated are not satisfying, to be honest. Too much overlapping.</span></p>
+            <p><span>A proper fix to this is to restrict the selection of players to the ones with sufficient playing
+                    time. At
+                    the same time, further slice the involved variables to highlight the de facto playing style of a
+                    player. In
+                    other words, it’s compulsory to get rid of those variables not contributing enough to that. For
+                    instance:</span></p>
+            <ul>
+                <li><span>Keep </span><em><span>total rebounds</span></em><span>, remove </span><em><span>offensive
+                            rebounds</span></em><span>, and </span><em><span>defensive
+                            rebounds</span></em><span>.</span></li>
+                <li><span>Remove stats like </span><em><span>playing minutes, games played, games
+                            started</span></em><span>,
+                        etc.</span></li>
+                <li><strong><span>The data is standardized so that variables become comparable. (This is also a hard
+                            requirement
+                            for hierarchical clustering.)</span></strong></li>
+            </ul>
+            <p><span>In this way, a list of 50 players ranked by their playing minutes in the last season is kept. For
+                    the
+                    stats remained, they are:</span></p>
+            <ul>
+                <li><code>FG%</code><span>: </span><em><span>field goal percentage</span></em><span>.</span></li>
+                <li><code>3PA</code><span>: </span><em><span>3-pointers attempts</span></em><span>.</span></li>
+                <li><code>eFG%</code><span>: </span><em><span>effective field goal percentage</span></em><span>.</span>
+                </li>
+                <li><code>FT</code><span>: </span><em><span>free throw attempts</span></em><span>.</span></li>
+                <li><code>TRB</code><span>: </span><em><span>total rebounds</span></em><span>.</span></li>
+                <li><code>AST</code><span>: </span><em><span>assists.</span></em></li>
+                <li><code>STL</code><span>: </span><em><span>steals</span></em><span>.</span></li>
+                <li><code>BLK</code><span>: </span><em><span>blocks</span></em><span>.</span></li>
+                <li><code>TOV</code><span>: turnovers.</span></li>
+                <li><code>PTS</code><span>: points.</span></li>
+            </ul>
+            <p><span>Keep in mind that this selection of variables might be as flawed as the previous “all-inclusive”
+                    strategy. Nevertheless, at least it should highlight some playing styles.</span></p>
+            <p><span>If you run the </span><code>iter_kmeans()</code><span> function again with the modifications, you
+                    probably would get similar results below.</span></p>
+
+            <figure>
+                <img src="img/05-02-limited-cluster-k2.png" alt="limited-cluster-k2" class="article-img">
+                <figcaption>k = 2<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/05-02-limited-cluster-k3.png" alt="limited-cluster-k3" class="article-img">
+                <figcaption>k = 3<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/05-02-limited-cluster-k4.png" alt="limited-cluster-k4" class="article-img">
+                <figcaption>k = 4<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/05-02-limited-cluster-k5.png" alt="limited-cluster-k5" class="article-img">
+                <figcaption>k = 5<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>Significant improvement can be concluded as the clustering by small value </span> $k$ <span>
+                    seems gratifying. Still, the overlapping issue remains as $\ k$ increases to 4 and
+                    up.</span></p>
+        </section>
+
+        <section id="13hierarchical">
+            <h3><span>1.3 Hierarchical clustering</span></h3>
+
+            <p><span>Hierarchical clustering is an alternative way to k-means used above to detect similarities and
+                    group the
+                    records in datasets. One of the most attempting traits of hierarchical clustering is no requirement
+                    for a
+                    pre-determined $\ k$ value. </span></p>
+
+            <p><span>To be fair, this section is only touching the very surface of hierarchical clustering. It is not
+                    designed
+                    to dive deep into the topic. The post </span><a
+                    href='https://uc-r.github.io/hc_clustering'><em><span>Hierarchical Cluster
+                            Analysis</span></em></a><span> by
+                    the University of Cincinnati is a great reading on R package selection, the algorithm itself, and
+                    understanding the dendrograms.</span></p>
+            <p><span>For this part of the task, two types of hierarchical clustering are performed and ultimately
+                    compared.</span></p>
+            <p><span>Both hierarchical clusterings are agglomerative (bottom-up):</span></p>
+            <ul>
+                <li><span>Euclidean distance to measure dissimilarity, Complete Linkage as the agglomeration method.
+                    </span>
+                </li>
+                <li><span>Minkowski distance to measure dissimilarity, Ward’s D2 Linkage as the agglomeration
+                        method.</span>
+                </li>
+            </ul>
+
+            <figure>
+                <img src="img/05-04-dendrogram-complete.png" alt="dendrogram-complete" class="article-img">
+                <figcaption>Dendrogram with setup 1.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/05-04-dendrogram-ward-2d.png" alt="dendrogram-ward-2d" class="article-img">
+                <figcaption>Dendrogram with setup 2.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>Although the two dendrograms seem to be different and are not identical, they still share a lot in
+                    common. Please ignore the color mapping in these two, and it’s not hard to detect that some players
+                    are always
+                    grouped with other certain players. And the most important takeaway from these two is that they both
+                    pick $\ k=3$.
+                </span>
+            </p>
+
+            <p><span>To further compare the dendrograms, a tanglegram is drawn to show the big picture in
+                    comparison:</span>
+            </p>
+
+            <figure>
+                <img src="img/05-04-tanglegram.png" alt="tanglegram" class="article-img">
+                <figcaption>Entanglement between two dendrograms is 0.24<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>
+                    The entanglement shows the quality of the alignment of the two trees (dendrograms). 0.24 is a rather
+                    low
+                    entanglement coefficient which corresponds to a good alignment.</span></p>
+        </section>
+
+        <section id="14distances">
+            <h3><span>1.4 Distance matrices with various metrics</span></h3>
+
+            <p><span>This section focuses more on the similarity/dissimilarity of numeric vectors. A total of four
+                    different
+                    metrics are used to calculate the distances between two players. Note that the player names on
+                    x-axis are
+                    removed to keep the visualization result tidy. They are essentially the same as y-axis.</span></p>
+
+
+            <figure>
+                <img src="img/05-05-dist-euc.png" alt="euclidean" class="article-img">
+                <figcaption>Euclidean distance.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+            <figure>
+                <img src="img/05-05-dist-man.png" alt="manhattan" class="article-img">
+                <figcaption>Manhattan distance.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <br>
+            $\text{cosine similarity} = \frac{\mathbf{x}\cdot
+            \mathbf{y}}{\sqrt{\mathbf{x}\cdot\mathbf{x}}\sqrt{\mathbf{y}\cdot\mathbf{y}}}$
+            <br>
+
+            The <code>dist()</code> function in R does not have Cosine Similarity as a distance metric. It is not hard
+            to implement with R though.
+            <figure>
+                <img src="img/05-05-dist-cos.png" alt="cosine" class="article-img">
+                <figcaption>Cosine similarity.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+            <figure>
+                <img src="img/05-05-dist-can.png" alt="canberra" class="article-img">
+                <figcaption>Canberra distance.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>Even though the player names are mixed up in each of the heatmaps, three out of four, except the
+                    one
+                    generated by Canberra distance, roughly show the evidence of three clustered groups in the sense of
+                    similarity.</span></p>
+
+        </section>
+
+        <section id="15optimalk">
+            <h3><span>1.5 Selecting the optimal $\ k$ value</span></h3>
+
+            <p><span>In previous sections of this part, different $\ k$ values are visually evaluated but never
+                    rigorously determined.</span></p>
+        </section>
+
+        <section id="151elbow">
+            <h4><span>1.5.1 Elbow method</span></h4>
+
+            <figure>
+                <img src="img/05-03-optimal-k-elbow.png" alt="optimal-k-elbow" class="article-img">
+                <figcaption>Elbow method suggests k=2<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The elbow method suggests $\ k=2$ is the optimal value since the drop from 1 to 2 is the greatest,
+                    thus making $\ k=2$ an "elbow."</span></p>
+        </section>
+
+        <section id="152silhouette">
+            <h4><span>1.5.2 Silhouette score</span></h4>
+
+            <figure>
+                <img src="img/05-03-optimal-k-silhouette.png" alt="optimal-k-silhouette" class="article-img">
+                <figcaption>Silhouette score suggests k=3<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The Silhouette score at $\ k=3$ is maximized, suggesting $\ k=3$ to be optimal. However, $\ k=2$ is
+                    very close in the score as well. Hence, the selection here is not decisive.</span></p>
+
+        </section>
+
+        <section id="153gap">
+            <h4><span>1.5.3 Gap statistic</span></h4>
+
+            <figure>
+                <img src="img/05-03-optimal-k-gap-stat.png" alt="optimal-k-gap-stat" class="article-img">
+                <figcaption>Gap statistic suggests k=1<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The gap statistic is slightly off since it hints at an optimal value of $\ k=1$</span></p>
+
+            <p><span>This one basically makes no sense.</span></p>
+
+        </section>
+
+        <section id="154nbclust">
+            <h4><span>1.5.4 Use <code>fviz_nbclust()</code> to automate</span></h4>
+
+            <p><span>Another approach to automate the selection procedure is to utilize
+                </span><code>fviz_hbclust()</code><span> function from </span><code>{factoextra}</code><span>. The
+                    function
+                    determines and visualizes the optimal number of clusters using different methods,
+                </span><strong><span>within-cluster sum of squares (elbow), average silhouette</span></strong><span> and
+                </span><strong><span>gap statistics</span></strong><span>. The most convenient part is its text output,
+                    telling
+                    you the optimal $\ k$ in plain text.</span></p>
+
+            <pre>
+*** : The Hubert index is a graphical method of determining
+    the number of clusters. In the plot of Hubert index, we
+    seek a significant knee that corresponds to a significant
+    increase of the value of the measure i.e the significant
+    peak in Hubert index second differences plot.
+
+*** : The D index is a graphical method of determining the
+    number of clusters. In the plot of D index, we seek a
+    significant knee (the significant peak in Dindex second
+    differences plot) that corresponds to a significant
+    increase of the value of the measure.
+
+*******************************************************************
+* Among all indices:
+* 7 proposed 2 as the best number of clusters
+* 8 proposed 3 as the best number of clusters
+* 4 proposed 4 as the best number of clusters
+* 4 proposed 5 as the best number of clusters
+
+                ***** Conclusion *****
+
+* According to the majority rule, the best number of clusters is  3
+
+
+*******************************************************************
+Among all indices:
+===================
+* 2 proposed  0 as the best number of clusters
+* 1 proposed  1 as the best number of clusters
+* 7 proposed  2 as the best number of clusters
+* 8 proposed  3 as the best number of clusters
+* 4 proposed  4 as the best number of clusters
+* 4 proposed  5 as the best number of clusters
+
+Conclusion
+=========================
+* According to the majority rule, the best number of clusters is  3 .
+            </pre>
+
+            <p>
+                <span>Again, this method agrees on $\ k=3$. The voting results can be also visualized:</span>
+            </p>
+
+            <figure>
+                <img src="img/05-03-optimal-k-vote.png" alt="optimal-k-vote" class="article-img">
+                <figcaption>Voting for k=3<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="16prediction">
+            <h3><span>1.6 Cluster prediction</span></h3>
+
+            <p><span>Please see the other tab </span><a href='05-prediction.html'><span>"Cluster
+                        Prediction"</span></a><span> for
+                    more details.</span></p>
+        </section>
+
+        <section id="17summary">
+            <h3><span>1.7 Summary</span></h3>
+
+            <p><span>The previous clustering suggests either $\ k=3$ or $\ k=2$ are the most suitable number of clusters
+                    hidden within the data. However,
+                    the original label is the position of a player, which contains five possible values: PG, SG, SF, PF,
+                    and C.
+                    Despite that, the clustering with $\ k=5$ is horrible, with lots of overlapping areas. This means
+                    the clustering
+                    method does not learn quite well to describe a player’s playing position by his on-paper
+                    statistics.</span>
+            </p>
+            <p><span>Nevertheless, here are takeaways from this experiment:</span></p>
+            <ul>
+                <li><span>The clustering method selected does affect the clustering results.</span></li>
+                <li><span>For hierarchical clustering, parameter tuning does affect the clustering results.</span></li>
+                <li><span>Even though the clustering does not learn the position of players, it successfully partitions
+                        players into
+                        2 or 3 diversified groups. To some extent, it polarizes players to two extremes, either
+                        offensive or
+                        defensive.</span></li>
+                <li><span>Maybe replacing basic statistics with advanced statistics might be more descriptive when it
+                        comes to
+                        generating a player’s profile.</span></li>
+            </ul>
+            <ul>
+                <li><span>The evolution of modern basketball is at someplace where there are no fixed positions compared
+                        to what
+                        prevailed 20 or 30 years ago. Versatile players are more welcomed nowadays, such as a center who
+                        can run the
+                        offense as a post playmaker or a guard who can hustle all the time, grabbing rebounds. Even the
+                        word
+                        &quot;3D&quot; stands for 3-pointers and defense. No roles on the court are specialized for a
+                        single task.
+                        Players like Ben Simmons can easily guard against 1 to 5, doing anything possible on the court
+                        (except
+                        shooting?)</span></li>
+                <li><strong><span>In this way, we can easily blame the poor performance of clustering for not enough
+                            tuning, or this
+                            is THE CASE. The positions on the court are just labels used to connect the old school
+                            basketball to modern
+                            games. They are like the jersey numbers to distinguish a player, nothing less, nothing
+                            more.</span></strong>
+                </li>
+            </ul>
+        </section>
+
+        <section id="02text">
+            <h2><span>2. Clustering news (hopefully) to distinguish the categories</span></h2>
+
+            <p><span>Due to the limit of the effective width of this web design, please bear that most visualizations
+                    down
+                    there are in better visual experience when clicked and enlarged.</span></p>
+        </section>
+
+        <section id="21cleaning">
+            <h3><span>2.1 Data cleaning</span></h3>
+
+            <p><span>The original design is to distinguish sources that cover NBA news. But the test run is not very
+                    convincing as the clustering messes up everything. An assumption would be that word usage is pretty
+                    much
+                    identical for most of them. In the end, this is not identifying authors by their writing styles.
+                    Therefore, a
+                    further trial is conducted after the introduction of more diversified news sources.</span></p>
+
+            <p><span>The new inclusion includes:</span></p>
+
+            <blockquote>
+                <ul>
+                    <li><a
+                            href='https://github.com/rexarski/box2box/blob/main/data/nba-news-source/espn.com-2021-10-09.csv'><span>ESPN</span></a>:
+                        news about sports.
+                    </li>
+                    <li><a
+                            href='https://github.com/rexarski/box2box/blob/main/data/nba-news-source/macrumors.com-2021-10-09.csv'><span>MacRumors</span></a>:
+                        news about consumer electronics.
+                    </li>
+                    <li><a
+                            href='https://github.com/rexarski/box2box/blob/main/data/nba-news-source/nasa.com-2021-10-09.csv'><span>NASA</span></a>:
+                        news about astronomy.
+                    </li>
+                    <li><a
+                            href='https://github.com/rexarski/box2box/blob/main/data/nba-news-source/polygon.com-2021-10-09.csv'><span>Polygon</span></a>:
+                        news about gaming.
+                    </li>
+                </ul>
+            </blockquote>
+        </section>
+
+        <section id="22kmeans">
+            <h3><span>2.2 K-means clustering with different $\ k$ values</span></h3>
+
+            <p><span>The 400 news articles are concatenated into one data frame. Unlike last time, the title and
+                    headline are
+                    combined into one string variable. The text will later be vectorized by two different vectorizers,
+                </span><code>CountVectorizer</code><span> and </span><code>TfidfVectorizer</code><span>,
+                    respectively.</span>
+            </p>
+
+            <figure>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th><span>Source</span></th>
+                            <th><span>Date</span></th>
+                            <th><span>Text</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span>0</span></td>
+                            <td><span>ESPN</span></td>
+                            <td><span>2021-09-09</span></td>
+                            <td><span>The battle for the Cy Hawk another test for Oh...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>1</span></td>
+                            <td><span>ESPN</span></td>
+                            <td><span>2021-09-09</span></td>
+                            <td><span>Dak is back Why the Cowboys have zero concerns...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>2</span></td>
+                            <td><span>ESPN</span></td>
+                            <td><span>2021-09-09</span></td>
+                            <td><span>Why the WNBA draft class has struggled to make...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>3</span></td>
+                            <td><span>ESPN</span></td>
+                            <td><span>2021-09-09</span></td>
+                            <td><span>Is UCLA finally on track with Chip Kelly After...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>4</span></td>
+                            <td><span>ESPN</span></td>
+                            <td><span>2021-09-12</span></td>
+                            <td><span>Broncos WR Jeudy carted off with lower leg inj...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>...</span></td>
+                            <td><span>...</span></td>
+                            <td><span>...</span></td>
+                            <td><span>...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>395</span></td>
+                            <td><span>MacRumors</span></td>
+                            <td><span>2021-10-05</span></td>
+                            <td><span>Apple Agrees to Pay Million to Settle Lawsuit ...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>396</span></td>
+                            <td><span>MacRumors</span></td>
+                            <td><span>2021-10-05</span></td>
+                            <td><span>Apple Commemorates th Anniversary of Steve Job...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>397</span></td>
+                            <td><span>MacRumors</span></td>
+                            <td><span>2021-09-30</span></td>
+                            <td><span>Apple Seeds macOS Big Sur Beta to Developers W...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>398</span></td>
+                            <td><span>MacRumors</span></td>
+                            <td><span>2021-10-01</span></td>
+                            <td><span>MacRumors Giveaway Win a Flight Bag Leather Br...</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>399</span></td>
+                            <td><span>MacRumors</span></td>
+                            <td><span>2021-09-27</span></td>
+                            <td><span>Google Criticizes EU Regulators for Ignoring A...</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </figure>
+
+            <p><span>A re-usable function </span><code>iterate_w_k()</code><span> is implemented to perform dimension
+                    reduction, K-means clustering over the reduced features, and output the visualization along with two
+                    metrics
+                    (the homogeneity and Silhouette score.)</span></p>
+
+            <p><span>The clusterings with </span><code>CountVectorizer</code><span> preprocessed data and k from 2 to
+                    5:</span></p>
+
+            <figure>
+                <img src="img/05-06-clustering-cv.png" alt="" class="article-img">
+                <figcaption>Clustering with <code>CountVectorizer</code>.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The clusterings with </span><code>TfidfVectorizer</code><span> preprocessed data and k from 2 to
+                    5:</span></p>
+
+            <figure>
+                <img src="img/05-06-clustering-tv.png" alt="" class="article-img">
+                <figcaption>Clustering with <code>TfidfVectorizer</code>.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>With the prior knowledge that if the clustering truly learns anything about resources, k should be
+                    4
+                    without any debate.</span></p>
+            <p><span>The following table lists the homogeneity score, which tells how alike the data are with a cluster,
+                    and
+                    the Silhouette score, which describes how far the clusters are from each other. Ideally, the higher,
+                    the
+                    better for both.</span></p>
+
+            <figure>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th><code>k=2</code></th>
+                            <th><code>k=3</code></th>
+                            <th><code>k=4</code></th>
+                            <th><code>k=5</code></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span>homogeneity score (</span><code>CountVectorizer</code><span>)</span></td>
+                            <td><span>0.2914526756355663</span></td>
+                            <td><span>0.36946391298809556</span></td>
+                            <td><span>0.29680912347283095</span></td>
+                            <td><span>0.45727954760694456</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Silhouette score (</span><code>CountVectorizer</code><span>)</span></td>
+                            <td><span>0.16836203241503322</span></td>
+                            <td><span>0.17904908336242356</span></td>
+                            <td><span>0.17863738778270835</span></td>
+                            <td><span>0.08412074984413664</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>homogeneity score (</span><code>TfidfVectorizer</code><span>)</span></td>
+                            <td><span>0.06146851457954772</span></td>
+                            <td><span>0.39324808032485964</span></td>
+                            <td><span>0.5800599275998554</span></td>
+                            <td><span>0.5257363389005074</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>Silhouette score (</span><code>TfidfVectorizer</code><span>)</span></td>
+                            <td><span>0.029815094893238428</span></td>
+                            <td><span>0.034968169736253746</span></td>
+                            <td><span>0.04392759797869041</span></td>
+                            <td><span>0.04084535197279959</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </figure>
+
+            <p><span>Roughly speaking, k=4 with </span><code>TfidfVectorizer</code><span> gives a decent clustering
+                    result.
+                    For the procedures below, k=4 will be selected as an example.</span></p>
+
+        </section>
+
+        <section id="23dbscan">
+            <h3><span>2.3 DBSCAN</span></h3>
+
+            <p><span>The Density-Based Spatial Clustering of Applications with Noise detects the samples of high density
+                    and
+                    expands clusters from them. Since the Silhouette scores above are relatively low, DBSCAN is an
+                    alternative to
+                    be considered. With k=4, the DBSCAN clusters are:</span></p>
+
+            <figure>
+                <img src="img/05-07-clustering-dbscan-4.png" alt="" class="article-img">
+                <figcaption><br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>However, hyper-parameter tuning in DBSCAN is really tricky. The following two articles provide very
+                    detailed solutions to tuning.</span></p>
+
+            <ul>
+                <li><a
+                        href='https://medium.com/@mohantysandip/a-step-by-step-approach-to-solve-dbscan-algorithms-by-tuning-its-hyper-parameters-93e693a91289'><span>A
+                            Step by Step approach to Solve DBSCAN Algorithms by tuning its hyper parameters</span></a>
+                </li>
+                <li><a href='https://towardsdatascience.com/how-to-use-dbscan-effectively-ed212c02e62'><span>How to Use
+                            DBSCAN
+                            Effectively</span></a></li>
+            </ul>
+            <p><span>It will take pages to dissect the problem, which is not the focus of this part of the
+                    portfolio.</span>
+            </p>
+
+        </section>
+
+        <section id="24hierarchical">
+            <h3><span>2.4 Hierarchical clustering</span></h3>
+
+            <p><span>The hierarchical clustering, unlike anything above, suggests that k=3 should also be
+                    considered.</span>
+            </p>
+
+            <figure>
+                <img src="img/05-08-clustering-hierarchical-dendrogram.png" alt="" class="article-img">
+                <figcaption><br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+        </section>
+
+        <section id="25optimal">
+            <h3><span>2.5 Optimal $\ k$</span></h3>
+
+            <p><span>So back to the Silhouette scores. A thorough but tedious Silhouette analysis is conducted on k from
+                    value
+                    2 to 5.</span></p>
+
+            <figure>
+                <img src="img/05-09-clustering-find-optimal-k.png" alt="" class="article-img">
+                <figcaption><br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The thickness of each color strip indicates the size of a cluster under its k value. k=3 is a lousy
+                    pick
+                    since there are some clusters with below-average Silhouette scores. k=5 is another poor choice due
+                    to the
+                    fluctuation in the size of the silhouette plots.</span></p>
+
+            <pre>
+For n_clusters = 2 The average silhouette_score is : 0.7721933252661253
+For n_clusters = 3 The average silhouette_score is : 0.741629848098952
+For n_clusters = 4 The average silhouette_score is : 0.7170194571369254
+For n_clusters = 5 The average silhouette_score is : 0.47913326363536746
+            </pre>
+
+            <p><span>Although k=2 delivers a higher average Silhouette score, its lead against k=4 is not significant.
+                    In
+                    addition, the cluster sizes of k=2 are more extreme than those of k=4.</span></p>
+            <p><span>With prior knowledge generally known to everyone, k=4 is a more logical choice.</span></p>
+
+        </section>
+
+        <section id="26summary">
+            <h3><span>2.6 Summary</span></h3>
+
+            <p><span>tf-idf and counts give different results. This is totally reasonable since two of them have unique
+                    emphasis.
+                    Count is just the plain frequency of certain words&#39; appearances in a document, while tf-idf,
+                    according to
+                </span><a href='https://en.wikipedia.org/wiki/Tf%E2%80%93idf'><span>Wikipedia</span></a><span>,
+                    &quot;increases
+                    proportionally to the number of times a word appears in the document and is offset by the number of
+                    documents in
+                    the corpus that contain the word, which helps to adjust for the fact that some words appear more
+                    frequently in
+                    general.&quot;</span></p>
+            <p><span>When </span><code>TfidfVectorizer</code><span> is selected as the text processing vectorizer, a
+                    series of
+                    trials to find the optimal k value begins. Although some of the results don&#39;t coincide, they
+                    still manage to
+                    give some insights about the text data from their own perspectives.</span></p>
+            <p><span>A potential explanation for poor performance in text clustering could be: the sample size is
+                    limited, and the
+                    text material within each news piece is not long enough at the same time. A more appropriate
+                    approach to study
+                    text data will be introduced in next section.</span></p>
+        </section>
+
+        <section id="03topic">
+            <h2><span>3. Topic modeling with news</span></h2>
+
+            <p><span>This is a bonus part that might be interesting under the same topic. Frankly, text clustering is
+                    something fundamental to do in natural language processing. But the story never ends there.</span>
+            </p>
+
+            <p><span>A topic is defined by a set of keywords, which are so important that each of them have a
+                    probability of occurrence for the topic. Naturally, different topics have their own keyword sets
+                    with corresponding probabilities, while sharing some common keywords at the same time. And, looking
+                    at the this in a larger picture, a document in the corpus can contain several topics.</span></p>
+
+            <p><span>On the contrary, the clustering algorithm clusters documents into different groups based on a
+                    selected similarity metric.</span></p>
+
+            <p><span>For the use case in this chapter of the portfolio, topic modeling seems to be a preferable choice,
+                    especially the prior knowledge we have about the documents are their sources, which basically are
+                    equivalent to news topics they report and cover.</span></p>
+
+            <p><span>
+                    A Latent Dirichlet allocation (LDA) is used to perform a topic modeling on the same news
+                    data.</span></p>
+
+            <blockquote>
+                <p>
+                    <span>R script for topic modeling: </span><a
+                        href='https://github.com/rexarski/box2box/blob/main/nba-news-clustering/topic-modeling.R'><span>topic-modeling.R</span></a>
+                </p>
+            </blockquote>
+
+            <p><span>A quick and dirty LDA gives the following 4 topics ranked by beta value, which is the
+                    per-topic-per-word probability.</span></p>
+
+            <figure>
+                <img src="img/05-10-topic-modeling-lda.png" alt="lda" class="article-img">
+                <figcaption>LDA 4 topic modeling.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>It's not a secret that this LDA topic modeling has its own problem as well: although the stopwords
+                    are removed in the preparation of dfm, there are still lots of meaningless terms in the final
+                    output.</span></p>
+        </section>
+
+        <section id="references">
+            <h2><span>References</span></h2>
+
+            <ul>
+                <li>
+                    <p><a href='https://uc-r.github.io/'><span>UC Business Analytics R Programming Guide</span></a></p>
+                    <ul>
+                        <li><a href='https://uc-r.github.io/kmeans_clustering'><span>K-means Cluster Analysis</span></a>
+                        </li>
+                        <li><a href='https://uc-r.github.io/hc_clustering'><span>Hierarchical Cluster
+                                    Analysis</span></a></li>
+                    </ul>
+                </li>
+                <li>
+                    <p><a
+                            href='https://stackoverflow.com/questions/21064315/how-do-i-predict-new-datas-cluster-after-clustering-training-data'><span>Stackoverflow
+                                - How do I predict new data’s cluster after clustering training data?</span></a></p>
+                </li>
+                <li>
+                    <p><a href='https://sanjayasubedi.com.np/nlp/nlp-with-python-document-clustering/'><span>NLP with
+                                Python: Text Clustering</span></a></p>
+                </li>
+                <li>
+                    <p><a href='https://jakevdp.github.io/PythonDataScienceHandbook/05.11-k-means.html'><span>In Depth:
+                                k-Means Clustering</span></a></p>
+                </li>
+                <li>
+                    <p><a href='https://scikit-learn.org/stable/auto_examples/cluster/plot_dbscan.html'><span>scikit-learn:
+                                Demo of DBSCAN clustering algorithm</span></a></p>
+                </li>
+                <li>
+                    <p><a
+                            href='https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html'><span>scikit-learn:
+                                Selecting the number of clusters with silhouette analysis on KMeans
+                                clustering</span></a></p>
+                </li>
+                <li>
+                    <p><a
+                            href='https://datascience.stackexchange.com/questions/26772/what-is-the-difference-between-topic-modeling-and-clustering'><span>StackExchange:
+                                What is the difference between topic modeling and clustering?</span></a></p>
+                </li>
+                <li>
+                    <p><a
+                            href='https://medium.com/@mohantysandip/a-step-by-step-approach-to-solve-dbscan-algorithms-by-tuning-its-hyper-parameters-93e693a91289'><span>A
+                                Step by Step approach to Solve DBSCAN Algorithms by tuning its hyper
+                                parameters</span></a></p>
+                </li>
+                <li>
+                    <p><a href='https://towardsdatascience.com/how-to-use-dbscan-effectively-ed212c02e62'><span>How
+                                to Use
+                                DBSCAN
+                                Effectively</span></a></p>
+                </li>
+            </ul>
+        </section>
+
+    </article>
+    <hr>
+
+    <footer class="footer">
+        <p>Copyright &copy; 2021 <a href="https://qrui.xyz">Ruì Qiū</a></p>
+    </footer>
+    </article>
+
+    <script src="js/script.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [[' $', '$'], ['\\(', '\\)']]
+            }
+        };</script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</body>
+
+</html>
