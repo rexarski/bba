@@ -885,6 +885,46 @@ For n_clusters = 5 The average silhouette_score is : 0.47913326363536746
             <p><span>A quick and dirty LDA gives the following 4 topics ranked by beta value, which is the
                     per-topic-per-word probability.</span></p>
 
+            <p><span>The tf-idf data frame containing all the information of 400 text segements is:</span></p>
+
+            <pre>
+        # A tibble: 10,172 × 7
+           document term        count    tf   idf tf_idf source
+           <chr>    <chr>       <dbl> <dbl> <dbl>  <dbl> <chr>
+         1 text303  cinderella      7 0.259  5.99  1.55  Polygon
+         2 text325  castlevania     5 0.179  5.99  1.07  Polygon
+         3 text89   reid            2 0.154  5.99  0.922 ESPN
+         4 text308  battlefield     3 0.15   5.99  0.899 Polygon
+         5 text21   ap              2 0.154  5.30  0.815 ESPN
+         6 text106  storage         5 0.147  5.30  0.779 MacRumors
+         7 text50   nhl             3 0.158  4.89  0.773 ESPN
+         8 text27   trolls          2 0.125  5.99  0.749 ESPN
+         9 text27   bunch           2 0.125  5.99  0.749 ESPN
+        10 text47   redick          2 0.125  5.99  0.749 ESPN
+        # … with 10,162 more rows
+                    </pre>
+
+            <p><span>The per-topic-per-word (gamma) probability for all topic-document combination is:</span></p>
+
+            <pre>
+        # A tibble: 1,600 × 3
+           document topic    gamma
+           <chr>    <int>    <dbl>
+         1 text1        1 0.000808
+         2 text2        1 0.00136
+         3 text3        1 0.996
+         4 text4        1 0.00143
+         5 text5        1 0.00123
+         6 text6        1 0.000891
+         7 text7        1 0.000834
+         8 text8        1 0.000957
+         9 text9        1 0.469
+        10 text10       1 0.00117
+        # … with 1,590 more rows
+                    </pre>
+
+            <p><span>The visualization of top words by topic is listed below.</span></p>
+
             <figure>
                 <img src="img/05-10-topic-modeling-lda.png" alt="lda" class="article-img">
                 <figcaption>LDA 4 topic modeling.<br>Open in new tab to see in full size.
