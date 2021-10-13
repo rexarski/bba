@@ -574,6 +574,14 @@ Conclusion
                     </li>
                 </ul>
             </blockquote>
+
+            A wordcloud of the terms excluding the stopwords is shown below.
+
+            <figure>
+                <img src="img/05-01-clustering-wordcloud.png" alt="wordcloud" class="article-img">
+                <figcaption>Wordcloud of terms from news data.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
         </section>
 
         <section id="22kmeans">
@@ -665,6 +673,36 @@ Conclusion
                         </tr>
                     </tbody>
                 </table>
+            </figure>
+
+            The cleaned data set, which are Document-Term Matrix and Document-Frequency Matrix in this case, are stored
+            in these two intermediate files:
+
+            <blockquote>
+                <ul>
+                    <li><a
+                            href='https://github.com/rexarski/box2box/blob/main/data/nba-news-source/clustering-news-cv.csv'><span>clustering-news-cv.csv</span></a>:
+                        DTM by CountVectorizer.
+                    </li>
+                    <li><a
+                            href='https://github.com/rexarski/box2box/blob/main/data/nba-news-source/clustering-news-tfidf.csv'><span>clustering-news-tfidf.csv</span></a>:
+                        DFM by TfidfVectorizer.
+                    </li>
+                </ul>
+            </blockquote>
+
+            <p><span>The screenshots of these two data frames above are shown below.</span></p>
+
+            <figure>
+                <img src="img/05-01-cleaned-text-count.png" alt="" class="article-img">
+                <figcaption>DTM by <code>CountVectorizer</code>.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/05-01-cleaned-text-tfidf.png" alt="" class="article-img">
+                <figcaption>DFM by <code>TfidfVectorizer</code>.<br>Open in new tab to see in full size.
+                </figcaption>
             </figure>
 
             <p><span>A re-usable function </span><code>iterate_w_k()</code><span> is implemented to perform dimension
