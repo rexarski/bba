@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ARM & Networks - Rui Qiu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="sidebar">
+    <nav>
+        ◀️ <a href="index.html" class="return-button">Back</a>
+        <ul>
+            <li><a href="#setup">Setup</a></li>
+            <li><a href="#cleaning">Data Cleaning</a></li>
+            <li><a href="#arm">Associate rule mining</a></li>
+            <ul>
+                <li><a href="#itemsets">Top itemsets</a></li>
+                <li><a href="#rules">Top rules</a></li>
+                <li><a href="#more">More rules</a></li>
+                <li><a href="#conclusion">Conclusion</a></li>
+            </ul>
+            <li><a href="#viz">Network Viz</a></li>
+            <ul>
+                <li><a href="#igraph">
+                        <pre>{igraph}</pre>
+                    </a></li>
+                <li><a href="#prep">Data preparation</a></li>
+                <li><a href="#networkD3">
+                        <pre>{networkD3}</pre>
+                    </a></li>
+                <li><a href="#VisNetwork">
+                        <pre>{VisNetwork}</pre>
+                    </a></li>
+                <li><a href="#sankey">Sankey diagram</a></li>
+            </ul>
+            <li><a href="#summary">Summary</a></li>
+        </ul>
+
+        <svg xmlns=" http://www.w3.org/2000/svg">
+            <path />
+        </svg>
+
+    </nav>
+    <article id="top">
+        <div class="subheading">Part 6: ARM &amp; Networks</div>
+        <h1>Typical shot selection: From Zion’s floater to Dame’s logo shot</h1>
+
+        <p><span>Rui Qiu</span></p>
+        <p><span>Updated on 2021-10-19.</span></p>
+        <br>
+
+        <p><span>It’s a pity that the shot attempt data from chapter 3 hasn’t been utilized since then. Luckily,
+                this won’t be the case anymore. This chapter aims to perform </span><em><span>associate rule
+                    mining</span></em><span> (ARM) on a portion of NBA shot data. An explanation will be given later
+                on why only partial data is used here.</span></p>
+        <p><span>The ARM will identify a list of </span><strong><span>controlled</span></strong><span> frequent
+                itemsets, thus leading to a list of </span><strong><span>controlled</span></strong><span> frequent
+                rules. They are controlled because only rules contain the information of if this specific shot is
+                made matter. Otherwise, rules such as </span><code>{shottype=Arc3=&gt;value=3}</code><span> will be
+                valid for sure but not informative.</span></p>
+        <p><span>Although the shot data won’t provide any highlights of a player’s signature move, it will hopefully
+                give some insights into his favorite shot selection. To some extent, this also draws the boundary of
+                a player’s </span><em><span>hot zone</span></em><span>.</span></p>
+
+        <section id="setup">
+            <h2><span>Setup</span></h2>
+
+            <blockquote>
+                <ul>
+                    <li>
+                        <p><span>Data: </span><a
+                                href='https://github.com/rexarski/box2box/blob/main/data/nba-pbp/pbpstats-tracking-shots-cleaned.csv'><span>pbpstats-tracking-shots-cleaned.csv</span></a>
+                        </p>
+                    </li>
+                    <li>
+                        <p><span>Script: </span><a
+                                href='https://github.com/rexarski/box2box/blob/main/nba-xT-model/arm-shots.R'><span>arm-shots.R</span></a>
+                        </p>
+                    </li>
+                    <li>
+                        <p><span>Intermediate transaction rules data:</span></p>
+                        <ul>
+                            <li><a
+                                    href='https://github.com/rexarski/box2box/blob/main/nba-xT-model/shot-rules.RDS'><span>shot-rules.RDS</span></a>
+                            </li>
+                            <li><a
+                                    href='https://github.com/rexarski/box2box/blob/main/nba-xT-model/06-arm-shot-rules.csv'><span>06-arm-shot-rules.csv</span></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p><span>Intermediate frequent itemsets and rules:</span></p>
+                        <ul>
+                            <li><a
+                                    href='https://github.com/rexarski/box2box/blob/main/nba-xT-model/06-arm-frequent-items.csv'><span>06-arm-frequent-items.csv</span></a>
+                            </li>
+                            <li><a
+                                    href='https://github.com/rexarski/box2box/blob/main/nba-xT-model/06-arm-top-supp-rules.csv'><span>06-arm-top-supp-rules.csv</span></a>
+                            </li>
+                            <li><a
+                                    href='https://github.com/rexarski/box2box/blob/main/nba-xT-model/06-arm-top-conf-rules.csv'><span>06-arm-top-conf-rules.csv</span></a>
+                            </li>
+                            <li><a
+                                    href='https://github.com/rexarski/box2box/blob/main/nba-xT-model/06-arm-top-lift-rules.csv'><span>06-arm-top-lift-rules.csv</span></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p><span>Output JSON: </span><a
+                                href='https://github.com/rexarski/box2box/blob/main/nba-xT-model/network-data.json'><span>network-data.json</span></a>
+                        </p>
+                    </li>
+                </ul>
+            </blockquote>
+            <p><span>The script above fulfills all the tasks in this chapter, including both ARM and network
+                    visualization.</span></p>
+            <p><span>The packages used in the script are:</span></p>
+            <ul>
+                <li><code>{tidyverse}</code><span> for standard data analytics pipelines</span></li>
+                <li><code>{arules}</code><span> and </span><code>{arulesViz}</code><span> for associate rule
+                        mining</span></li>
+                <li><code>{igraph}</code><span>, </span><code>{networkD3}</code><span> and
+                    </span><code>{visNetwork}</code><span> for network visualization</span></li>
+            </ul>
+            <p>&nbsp;</p>
+        </section>
+
+        <section id="cleaning">
+            <h2><span>Data cleaning</span></h2>
+
+            <p><span>The data cleaning procedure starts by loading a previously cleaned, tidy data set. Since the ARM
+                    has a specific requirement for categorical variables as the input, variables will be factorized
+                    accordingly.</span></p>
+            <p><span>In short, we are doing the following three types of data mutation:</span></p>
+            <ol>
+                <li><span>Transform numeric data to factors</span></li>
+                <li><span>Transform logical data to factors with details</span></li>
+                <li><span>Transform NA to data as well.</span></li>
+            </ol>
+            <p><span>Unsurprisingly, since the data preserved lots of NAs in some variables for the integrity of the
+                    data, it is relatively reasonable to discard them in this task. Are they providing some information?
+                    Yes. But are they providing enough information to be included in the rule? Not really. A trial run
+                    with NAs gives out many rules with uninterpretable items. Therefore, the following variables are
+                    considered to be the participants of rules:</span></p>
+            <ul>
+                <li><code>player</code><span>: the name of the shot taker.</span></li>
+                <li><code>period</code><span>: the time period of a game that the shot takes place.</span></li>
+                <li><code>shottype</code><span>: the specific type of the shot, e.g., </span><code>Arc3</code><span>,
+                    </span><code>Corner3</code><span>, etc.</span></li>
+                <li><code>value</code><span>: either 2 pts or 3 pts.</span></li>
+                <li><code>and1</code><span>: whether the shot is fouled, and a free throw is given.</span></li>
+                <li><code>made</code><span>: whether the shot is made and corresponding pts are rewarded.</span></li>
+            </ul>
+        </section>
+
+        <section id="arm">
+            <h2><span>Associate rule mining</span></h2>
+
+            <p><span>After that, the data frame will again be processed by the generic R function
+                </span><code>as()</code><span>, which coerces an object to another class, to transaction data. It can be
+                    examined by </span><code>inspect()</code><span>.</span></p>
+            <p><span>The transactions data is a single R object, therefore stored as an RDS file in the
+                    repository.</span></p>
+            <p><span>In addition, another copy of CSV is stored in the repository. And it can be viewed as an embedded
+                    Airtable spreadsheet. </span><strong><span>Due to this web design’s effective width limitation,
+                        screenshots won’t be an appropriate option to display the transaction dataset.</span></strong>
+            </p>
+
+            <iframe class="airtable-embed"
+                src="https://airtable.com/embed/shrE6x234iMhlewiG?backgroundColor=blue&layout=card&viewControls=on"
+                frameborder="0" onmousewheel="" width="100%" height="533"
+                style="background: transparent; border: 1px solid #ccc;"></iframe>
+
+            <p><span>Apriori algorithm is an easy-to-implement and interpretable algorithm frequently used in ARM. It
+                    prunes all
+                    the combinations of itemsets by setting a few parameters.</span></p>
+            <p><span>The parameters used for the generation of these rules are:</span></p>
+            <ul>
+                <li><code>support = 0.0001</code></li>
+                <li><code>confidence = 0.5</code></li>
+                <li><code>minlen = 6</code></li>
+                <li><span>And the RHS of the rule must be either </span><code>made=is_made</code><span> or
+                    </span><code>made=not_made</code></li>
+            </ul>
+            <p><span>These parameters generate hundreds of meaningful rules, which are listed in that embedded
+                    spreadsheet.</span></p>
+            <p><span>As mentioned above, although the complete set of rules should be more than what is presented here,
+                    many of
+                    them are meaningless, considering the goal of analyzing this dataset is to outline players’ typical
+                    shot
+                    selection. Therefore, the parameters are set to be:</span></p>
+            <p><span>The frequent itemsets and top rules listed below are stored as intermediate CSV files, also
+                    accessible in
+                    the repository. At the same, they are uploaded to an Airtable spreadsheet as well. You can observe
+                    different
+                    sets of data by switching the tabs.</span></p>
+
+            <p><span><strong>Note: you can click on the burger menu button on top-left corner to switch
+                        tables.</strong></span></p>
+
+            <iframe class="airtable-embed"
+                src="https://airtable.com/embed/shreLb42c86A40aAT?backgroundColor=blue&layout=card" frameborder="0"
+                onmousewheel="" width="100%" height="533"
+                style="background: transparent; border: 1px solid #ccc;"></iframe>
+
+        </section>
+
+        <section id="itemsets">
+            <h3><span>Top itemsets</span></h3>
+
+            <p><span>First, let’s take a look at some frequent items in all transactions.</span></p>
+            <p><span>Apparently, many star players’ signature shots are successfully retrieved. For instance:</span></p>
+            <ul>
+                <li><span>Stephen Curry’s tons of 3-pointer from the arc, both made and missed.</span></li>
+            </ul>
+
+            <video width="100%" controls>
+                <source
+                    src="https://videos.nba.com/nba/pbp/media/2021/02/06/0022000360/402/72d7d602-25a0-14c2-80da-e807212aa19f_960x540.mp4"
+                    type=video/mp4>
+            </video>
+
+            <ul>
+                <li><span>Damian Lillard’s iconic logo shot.</span></li>
+            </ul>
+
+            <video width="100%" controls>
+                <source
+                    src="https://videos.nba.com/nba/pbp/media/2019/04/23/0041800165/616/1d437c90-cd3a-5d4d-b786-ed9fa08d298f_960x540.mp4"
+                    type=video/mp4>
+            </video>
+
+            <ul>
+                <li>
+                    <p><span>Zion Williamson’s unguardable attack-the-rim (and possibly with and-1)</span></p>
+                </li>
+            </ul>
+
+            <video width="100%" controls>
+                <source
+                    src="https://videos.nba.com/nba/pbp/media/2020/12/25/0022000005/379/645a109a-d7c5-93cb-9765-fa5de650b194_960x540.mp4"
+                    type=video/mp4>
+            </video>
+        </section>
+
+        <section id="rules">
+            <h3><span>Top rules</span></h3>
+            <p><span>Then, the rules are sorted by three metrics separately. For each metric, the top 15 results will be
+                    listed.
+                    You can <strong>switch the tabs of the spreadsheet</strong> above to view the datasets.</span></p>
+            <ul>
+                <li><strong><span>Rank by support</span></strong><span>. This generally copies the results of the most
+                        frequent
+                        itemsets since </span><em><span>support</span></em><span> indicates how frequently the items
+                        appear in
+                        the dataset.</span></li>
+            </ul>
+            <ul>
+                <li><strong><span>Rank by confidence</span></strong><span>. This shows how often the rule has been found
+                        to be
+                        true. Compared to the top 15 rules by support, there are some differences.</span></li>
+            </ul>
+            <ul>
+                <li><strong><span>Rank by lift</span></strong><span>. The </span><em><span>lift</span></em><span>
+                        greater than 1
+                        indicates that the two events (LHS and RHS) are dependent on one another. It shows that some
+                        players’
+                        shot selections are </span><strong><span>frequent</span></strong><span>, but they are their
+                    </span><strong><span>major attacking approaches</span></strong><span>. And again, more
+                    </span><em><span>signature</span></em><span> shot selections are identified. All of the 15 typical
+                        shot
+                        selection combinations are 2-pointers. The top three are Zion and Giannis’ shots with and-1. How
+                        unstoppable!</span></li>
+            </ul>
+        </section>
+
+        <section id="more">
+            <h3><span>More rules</span></h3>
+
+            <p><span>Before jumping into the network visualization, let’s take a look at the shot rules dataset again.
+                    Suppose
+                    the LHS is filtered to be a particular player. In that case, a list of rules involving this player
+                    can be
+                    returned easily.</span></p>
+            <p><span>Again, the length of the output is controlled by the parameter. For example, by changing the
+                </span><code>minlen</code><span> to 2:</span></p>
+
+            <figure>
+                <img src="img/06-arm-additional-rule.png" alt="rules" class="article-img-no-shadow">
+                <figcaption>More rules starting from Zion Williamson.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="conclusion">
+            <h3><span>Conclusion</span></h3>
+
+            <p><span>To conclude, ARM is a basic rule-based machine learning method used to identify interesting
+                    relations
+                    between variables in a rather large dataset. The threshold used to define what a
+                </span><strong><span>“strong”</span></strong><span> rule is, however, can be tuned by manual selection.
+                    Based on
+                    this method, a list of meaningful rules about NBA players and their shot selections are
+                    generated.</span>
+            </p>
+        </section>
+
+        <section id="viz">
+            <h2><span>Network Viz</span></h2>
+
+            <p><span>The network visualization is a perfect choice to demonstrate the interconnection among different
+                    rules and
+                    rules’ items. Too many rules can, of course, be visualized within one html widget, but it won’t be
+                    easy to
+                    be interact with. For the following three visualization packages, each only visualizes a partition
+                    of the rules data for the apparent aesthetic
+                    reason.</span></p>
+        </section>
+
+        <section id="igraph">
+            <h3><span>
+                    <pre>{igraph}</pre>
+                </span></h3>
+
+            <p><span>Two versions of networks are generated by the </span><code>{igraph}</code><span> package. They are
+                    essentially the same.</span></p>
+
+            <figure>
+                <img src="img/06-arm-igraph.png" alt="network-igraph" class="article-img">
+                <figcaption>Rules network generated by
+                    <pre>{igraph}</pre>.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <iframe src="./06-arm-igraph.html" frameborder="0" width="100%" height="500"
+                style="background: transparent; border: 1px solid #ccc;">
+            </iframe>
+
+            <blockquote>
+                <p><a href='./06-arm-igraph.html'><span>Click HERE to open in a new tab.</span></a></p>
+            </blockquote>
+
+            <p><span>Although the rules are ranked by </span><strong><span>support</span></strong><span>, the visual
+                    cues focus
+                    on the other two metrics. The associate rules are marked as red circles in the network. The darker
+                    the
+                    circle, the higher </span><strong><span>confidence</span></strong><span> it indicates. The larger,
+                    the
+                    higher </span><strong><span>lift</span></strong><span> it has. The ones in the corner, for example,
+                    are the
+                    rules of Zion Williamson and Giannis Antetokounmpos’ shot at the rim. There are also some nodes with
+                    high
+                    degrees, which means they are pretty </span><strong><span>common</span></strong><span> in many
+                    rules. The
+                    nodes with </span><code>made=is_made</code><span> and </span><code>made=not_made</code><span> are
+                    automatically two with high traffic since any rule connects with either of them. Some other nodes,
+                    which are
+                    the variables used to describe a shot, are also connected by a large number of edges.</span></p>
+        </section>
+
+        <section id="prep">
+            <h3><span>Data preparation</span></h3>
+
+            <p><span>With the rule dataset and some basic knowledge of graph theory, we can transform the dataset into
+                    something
+                    more D3-friendly. Roughly speaking, the new datasets should contain
+                </span><strong><span>nodes</span></strong><span> and </span><strong><span>edges</span></strong><span>,
+                    including
+                    some miscellaneous aspects like the group and the color of those elements.</span></p>
+            <p><span>Unlike the sub-dataset used by </span><code>{igraph}</code><span>, the one visualized by the
+                    following two
+                    packages uses the complete ruleset. Then we extract two subsets from the data,</span></p>
+            <ul>
+                <li><span>one containing top 50 made shots scenario in the 4th quarter ranked by counts, </span></li>
+                <li><span>one containing only Zion Williamson and Giannis Antetokounmpos’ shot attempts.</span></li>
+            </ul>
+            <p><span>The detailed data pipeline scripts are included in the R script under “Network Viz - data
+                    preparation.”</span></p>
+        </section>
+
+        <section id="networkD3">
+            <h3><span>
+                    <pre>{networkD3}</pre>
+                </span></h3>
+
+            <p><span>Since </span><code>{networkD3}</code><span> utilizes D3.js, the index of records in
+                </span><code>nodes</code><span> and </span><code>edges</code><span> needs to subtract 1.</span></p>
+            <iframe src="./06-arm-networkd3.html" frameborder="0" width="100%" height="500"
+                style="background: transparent; border: 1px solid #ccc;">
+            </iframe>
+
+            <blockquote>
+                <p><a href='./06-arm-networkd3.html'><span>Click HERE to open in a new tab.</span></a></p>
+            </blockquote>
+
+            <p><span>The network visualized above shows some common shot selections in the 4th quarter of an NBA game,
+                    a.k.a,
+                    “the clutch time.” The orange nodes are the associate rules, while the blue ones are shot variables
+                    (including the </span><code>player</code><span>). The most common two variables are automatically
+                </span><code>made=is_made</code><span> and </span><code>period=4</code><span>, since all rules are
+                    apparently
+                    about these two. Then there are </span><code>shottype=AtRim</code><span> and
+                </span><code>shottype=ShortMidRange</code><span>. This might be explained by many tactics built on “safe
+                    plays.”
+                    Another cause might be filtering by counts, such that many risky but successful 3-pointer made are
+                    excluded
+                    due to small quantity.</span></p>
+            <p>&nbsp;</p>
+
+            <p><span>To give some specific examples, the network features more plays like this:</span></p>
+
+            <video width="100%" controls>
+                <source
+                    src="https://videos.nba.com/nba/pbp/media/2019/06/07/0041800404/604/9cdfd071-e8a7-1bfb-2ed3-f7bbb6737324_960x540.mp4"
+                    type=video/mp4>
+            </video>
+
+            <p><span>And fewer like this:</span></p>
+
+            <video width="100%" controls>
+                <source
+                    src="https://videos.nba.com/nba/pbp/media/2019/05/12/0041800217/603/5b87dc6a-8bc0-1917-64c5-4e9eac221f75_960x540.mp4"
+                    type=video/mp4>
+            </video>
+
+            <p>&nbsp;</p>
+        </section>
+
+        <section id="VisNetwork">
+            <h3><span>
+                    <pre>{VisNetwork}</pre>
+                </span></h3>
+
+            <iframe src="./06-arm-visnetwork.html" frameborder="0" width="100%" height="500"
+                style="background: transparent; border: 1px solid #ccc;">
+            </iframe>
+
+            <blockquote>
+                <p><a href='./06-arm-visnetwork.html'><span>Click HERE to open in a new tab.</span></a></p>
+            </blockquote>
+
+            <p><span>Even if they are not Giannis’ top choices,
+                </span><code>Arc3</code><span>,</span><code>ShortMidrange</code><span>, and
+                </span><code>LongMidrange</code><span> are in his arsenal. On the contrary, Zion is insanely efficient
+                    with
+                </span><code>AtRim</code><span> (majorly because of his floaters and dunks).</span></p>
+
+            <p><span>The two clips below are examples of their typical shot attempts.</span></p>
+
+            <p><span>Zion's dunk:</span></p>
+
+            <video width="100%" controls>
+                <source
+                    src="https://videos.nba.com/nba/pbp/media/2021/01/23/0022000246/86/cbdd58f4-0027-7f64-f5a1-c0b235885e00_960x540.mp4"
+                    type=video/mp4>
+            </video>
+
+            <p><span>Giannis' midrange, though relatively rare in previous seasons:</span></p>
+
+            <video width="100%" controls>
+                <source
+                    src="https://videos.nba.com/nba/pbp/media/2020/12/23/0022000003/626/2d6afd3b-58e8-f104-3f47-21031cfebb60_960x540.mp4"
+                    type=video/mp4>
+            </video>
+
+            <p>&nbsp;</p>
+        </section>
+
+        <section id="sankey">
+            <h3><span>Sankey diagram</span></h3>
+
+            <p><span>Last but not least, it just takes a one-liner to generate a Sankey diagram of a subset of rules by
+                </span><code>networkD3::sankeyNetwork()</code><span>.</span></p>
+            <iframe src="./06-arm-sankey.html" frameborder="0" width="100%" height="500"
+                style="background: transparent; border: 1px solid #ccc;">
+            </iframe>
+
+            <blockquote>
+                <p><a href='./06-arm-sankey.html'><span>Click HERE to open in a new tab.</span></a></p>
+            </blockquote>
+            <p><span>Although the diagram presents the same dataset as </span><code>{VisNetwork}</code><span> did, it
+                    actually
+                    unwraps in a more tidy manner. One can clearly tell the quantitative difference in each node by
+                    grouping the
+                    same variable with the same color.</span></p>
+            <p>&nbsp;</p>
+        </section>
+
+        <section id="summary">
+            <h2><span>Summary</span></h2>
+            <p><span>In summary, the data scraped and cleaned from the last few weeks are finally put into action. By
+                    using ARM,
+                    one can quickly unearth the typical shot selection patterns among NBA players. With some proper data
+                    manipulation, even more, information is revealed with the assistance of network
+                    visualization.</span></p>
+            <p><span>For the development of modern basketball, splitting the data season by season will clearly
+                    highlight the
+                    changes in shot selections of a player, a team, or the whole league, which is an indicator of
+                    tactical
+                    changes. More importantly, ARM and networks can be utilized when dealing with tons of data. Imagine
+                    a
+                    scenario that an analyst needs to study the shot preferences of an opponent team. Therefore, they
+                    can
+                    extract the frequent rules in a flash instead of watching hundreds of hours of videotapes.</span>
+            </p>
+            <p><span>Admittedly, the dataset used in this chapter is barely a fraction of the entire shot scenario, as
+                    lots of
+                    other descriptive variables are removed for various reasons. If more data is provided, it’s
+                    definitely
+                    possible to build a more captivating list of basketball “rules” so that both analysts and ordinary
+                    audiences
+                    can read the game from another angle. Furthermore, a predictive model based on associate rule mining
+                    is
+                    practical to predict how threatening a shot could be. Thus, it could serve as one piece of the xT
+                    model we
+                    initially aim to build from the beginning.</span>
+            </p>
+            <p>&nbsp;</p>
+        </section>
+
+        <hr>
+
+        <footer class="footer">
+            <p>Copyright &copy; 2021 <a href="https://qrui.xyz">Ruì Qiū</a></p>
+        </footer>
+    </article>
+
+    <script src="js/script.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [[' $', '$'], ['\\(', '\\)']]
+            }
+        };</script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</body>
+
+</html>
