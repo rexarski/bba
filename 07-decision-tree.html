@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Decision Tree - Rui Qiu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="sidebar">
+    <nav>
+        ◀️ <a href="index.html" class="return-button">Back</a>
+        <ul>
+            <li><a href="#reddit">Reddit upvote prediction</a></li>
+            <ul>
+                <li><a href="#reddit-data">Data</a></li>
+                <li><a href="#wordcloud">Wordcloud</a></li>
+                <li><a href="#reddit-tree0">tree0: text</a></li>
+                <li><a href="#reddit-tree1">tree1: Gini index</a></li>
+                <li><a href="#reddit-tree2">tree2: entropy</a></li>
+                <li><a href="#reddit-tree3">tree3</a></li>
+                <li><a href="#reddit-thoughts">Thoughts</a></li>
+            </ul>
+            <li><a href="#curry">3pt prediction</a></li>
+            <ul>
+                <li><a href="#curry-data">Data</a></li>
+                <li><a href="#spec-tuning">Spec tuning</a></li>
+                <li><a href="#curry-tree1">tree1: accuracy</a></li>
+                <li><a href="#curry-tree2">tree2: roc_auc</a></li>
+                <li><a href="#curry-tree3">tree3</a></li>
+            </ul>
+            <li><a href="#summary">Summary</a></li>
+        </ul>
+
+        <svg xmlns=" http://www.w3.org/2000/svg">
+            <path />
+        </svg>
+
+    </nav>
+    <article id="top">
+        <div class="subheading">Part 7: Decision Tree</div>
+        <h1>Tune and interpret decision trees</h1>
+
+        <p><span>Rui Qiu</span></p>
+        <p><span>Updated on 2021-11-05.</span></p>
+        <br>
+
+        <p><span>In this part of the portfolio, the goal is to build a few basic decision tree models based on various
+                selection criteria to make two rough but compelling predictions. The first one is the upvote ratio of a
+                thread
+                in Reddit’s subreddit </span><em><span>r/nba</span></em><span>. Each user-created thread’s title is
+                entirely
+                text-based, which is an excellent indicator of its content. Other Reddit users are capable of either
+                upvoting
+                or downvoting the threads based on their personal preferences. The second prediction is about if a
+                player
+                could make the shot in a particular on-court scenario.</span></p>
+
+        <blockquote>
+            <ul>
+                <li>
+                    <p><span>Data</span></p>
+                    <ul>
+                        <li><span>nba-top-100-threads-this-year, </span><a
+                                href='https://github.com/rexarski/box2box/blob/main/data/nba-reddit/nba-top-100-threads-this-year.json'><span>json</span></a><span>,
+                            </span><a
+                                href='https://github.com/rexarski/box2box/blob/main/data/nba-reddit/nba-top-100-threads-this-year-cleaned.csv'><span>csv</span></a><span>,
+                            </span><a
+                                href='https://github.com/rexarski/box2box/blob/main/data/nba-reddit/nba-top-100-threads-this-year-tfidf.csv'><span>tfidf
+                                    dtm</span></a></li>
+                        <li><span>pbpstats-tracking-shots-cleaned, </span><a
+                                href='https://github.com/rexarski/box2box/blob/main/data/nba-pbp/pbpstats-tracking-shots-cleaned.csv'><span>csv</span></a>
+                        </li>
+                        <li><span>stephen-curry-3, </span><a
+                                href='https://github.com/rexarski/box2box/blob/main/data/nba-pbp/stephen-curry-3.csv'><span>csv</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <p><span>Script</span></p>
+                    <ul>
+                        <li><a
+                                href='https://github.com/rexarski/box2box/blob/main/nba-dt/reddit-dt.ipynb'><span>reddit-dt.ipynb</span></a>
+                        </li>
+                        <li><a
+                                href='https://github.com/rexarski/box2box/blob/main/nba-dt/reddit-scraper-v2.R'><span>reddit-scraper-v2.R</span></a>
+                        </li>
+                        <li><a
+                                href='https://github.com/rexarski/box2box/blob/main/nba-dt/shot-dt.R'><span>shot-dt.R</span></a><span>
+                                (including the random forest model tuning.)</span></li>
+                    </ul>
+                </li>
+            </ul>
+        </blockquote>
+
+        <section id="reddit">
+            <h2><span>Reddit thread upvote ratio prediction</span></h2>
+
+        </section>
+
+        <section id="reddit-data">
+            <h3><span>Data</span></h3>
+            <p><span>Objectively, it will be a better model if the response stays numeric since the raw data has an
+                    upvote
+                    percentage. A regression model would suffice in predicting its value. However, as required, the
+                    ratio is
+                    factorized to a set of customized strata.</span></p>
+            <p><span>The modifed scraper extracts the top 100 most upvoted Reddit threads in the past twelve months. The
+                    ratio
+                    of </span><code>upvote/(upvote + downvote)</code><span> is selected to be the dependent variable. It
+                    is a
+                    numeric value between 0 and 1 by nature, but manually categorized using some stratifying condition.
+                    To be
+                    speicifc:</span></p>
+            <ul>
+                <li><em><span>highly top rated</span></em><span> if </span><code>upvote_ratio &gt;= 0.95</code></li>
+                <li><em><span>very top rated</span></em><span> if </span><code>0.90 &lt;= upvote_ratio &lt; 0.95</code>
+                </li>
+                <li><em><span>somewhat top rated</span></em><span> if
+                    </span><code>0.80 &lt;= upvote_ratio &lt; 0.90</code></li>
+                <li><em><span>top rated</span></em><span> if </span><code>upvote_ratio &lt; 0.80</code></li>
+            </ul>
+            <p><span>The text preprocessing of thread titles includes stopwords removal, punctuation removal, and
+                    conversion
+                    to lowercase. Some meaningless, mainly the single letter first name, are also trimmed.</span></p>
+            <p><span>Then the text is tokenized with </span><code>TfidfVectorizer()</code><span> and transformed into a
+                    DocumentTerm matrix.</span></p>
+            <p><span>A glimpse of the data frame after cleaning is shown below:</span></p>
+
+            <figure>
+                <img src="img/07-tfidf-reddit.png" alt="tfidf" class="article-img">
+                <figcaption>A glimpse of tf-idf DTM (also accessible as an intermediate CSV file.)<br>Open in new tab to
+                    see in full size.
+                </figcaption>
+            </figure>
+
+        </section>
+
+        <section id="wordcloud">
+            <h3><span>Wordcloud</span></h3>
+            <p><span>The preprocessing of text data creates bigram tokens. Therefore, the wordcloud is created in the
+                    same
+                    manner.</span></p>
+
+            <figure>
+                <img src="img/07-wordcloud.png" alt="wordcloud" class="article-img-no-shadow">
+                <figcaption>A wordcloud of top 100 post titles in r/nba.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>Clearly, the unigram tokens still dominate in frequency, while some bigrams are more interpretable.
+                    Due
+                    to the limited number of threads scraped using Reddit’s public API, there is nothing profound to
+                    conclude.</span></p>
+        </section>
+
+        <section id="reddit-tree0">
+            <h3><span>tree0: text representation</span></h3>
+            <p><span>The most effortless decision tree visualization can be accomplished by applying
+                </span><code>sklearn.tree.export_text()</code><span> on a
+                </span><code>DecisionTreeClassifier</code><span>
+                    object. Since parameter tuning is not the major focus in this chapter, a set of parameters is
+                    selected for no
+                    particular reason. For this one, the classifier has </span><code>max_depth=10</code><span>,
+                </span><code>min_samples_leaf=2</code><span>, using </span><code>‘gini’</code><span> index as the
+                </span><code>criterion</code><span>, and the </span><code>splitter</code><span> is set to
+                </span><code>random</code><span>. And of course, the model is trained on an 80-20 split of raw
+                    data.</span></p>
+            <p><span>The text representation of this </span><em><span>tree 0</span></em><span> is:</span></p>
+
+            <figure>
+                <img src="img/07-reddit-tree0.png" alt="reddit-tree0" class="article-img">
+                <figcaption>Text representation of tree0.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+        </section>
+
+        <section id="reddit-tree1">
+            <h3><span>tree1: split by Gini index</span></h3>
+            <p><span>A more vivid visualization of the same tree is produced by
+                </span><code>sklearn.tree.plot_tree()</code><span>. There’s nothing much to tweak when drawing this
+                    one.</span>
+            </p>
+
+            <figure>
+                <img src="img/07-tree1.png" alt="reddit-tree1" class="article-img-no-shadow">
+                <figcaption>Decision tree of tree1.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+            <p><span>This decision tree model has a tendency to grow “one-way.” What the model does is basically detect
+                    some
+                    keywords, then brutally slams the corresponding thread title into a category. </span></p>
+
+            <figure>
+                <img src="img/07-tree1-cm.png" alt="reddit-tree1-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of tree1.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The confusion matrix is generated based on the portion of test data.</span></p>
+            <p><span>Both text and visualization versions of a confusion matrix are produced in the notebook. The
+                    confusion
+                    matrix indicates a high concentration on the </span><code>very top rated</code><span> category. All
+                    the
+                    samples in this category are correctly labeled. Still, as mentioned, it also seems to have a
+                    tendency to
+                    misclassify other types as </span><code>very top rated</code><span>. An educated guess would be that
+                    the
+                    training data is generally populated with </span><code>very top rated</code><span> samples, which
+                    eventually
+                    leads to a biased model.</span></p>
+        </section>
+
+        <section id="reddit-tree2">
+            <h3><span>tree2: split by entropy</span></h3>
+            <p><span>As previously mentioned, for the next decision tree model, the focus is still not tuning parameters
+                    for a
+                    model with better performance. Nevertheless, while keeping the
+                </span><code>max_depth=10</code><span>, the
+                </span><code>min_samples_leaf</code><span> is set to be 1. The splitting condition is changed from Gini
+                    index to
+                </span><code>‘entropy’</code><span>, and the </span><code>splitter</code><span> is set to
+                </span><code>best</code><span>. As a result, the decision tree now looks like this:</span></p>
+
+            <figure>
+                <img src="img/07-tree2.png" alt="reddit-tree2" class="article-img-no-shadow">
+                <figcaption>Decision tree of tree2.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The confusion matrix, again, indicates some lousy performance.</span></p>
+
+            <figure>
+                <img src="img/07-tree2-cm.png" alt="reddit-tree2-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of tree2.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>In fact, the only category that this decision tree’s predictions are correct about is the
+                </span><code>very top rated</code><span> one. Given the circumstance that the training and testing data
+                    are
+                    stratified, it really brings out a below-average accuracy. A naïve substitute for this would be,
+                </span><strong><span>get the counts of each category in the training data and blindly guess all the
+                        testing data
+                        to be in that category.</span></strong></p>
+        </section>
+
+        <section id="reddit-tree3">
+            <h3><span>tree3: redo the decision tree with unigram tokens</span></h3>
+            <p><span>At this point, one might ask: what about tokenizing the text data as unigrams instead of bigrams?
+                    Maybe
+                    decreasing the specificity in the tokens would expose some more hidden patterns within words. And at
+                    the same
+                    time, since the model is not competing with others. It is tested for prediction accuracy on both
+                    testing data
+                    and the whole set.</span></p>
+
+            <figure>
+                <img src="img/07-tree3.png" alt="reddit-tree3" class="article-img-no-shadow">
+                <figcaption>Decision tree of tree3.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>It looks a little bit different from the previous bigram + entropy’s tree. The unigram model
+                    generally
+                    seems to have a smaller entropy when reaching the max depth of nodes. But the advantage is not that
+                    obvious.
+                </span></p>
+
+            <figure>
+                <img src="img/07-tree3-cm.png" alt="reddit-tree3-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of tree3.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The confusion matrix on testing data finally has some improvement on correctly labeling some
+                    classes
+                    other than </span><code>very top rated</code><span>.</span></p>
+
+            <figure>
+                <img src="img/07-tree3-cm-complete.png" alt="reddit-tree3-cm-complete" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of tree3 on complete data.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>Finally, the confusion matrix on the complete data set shows some seemingly impressive accuracy in
+                </span><code>top rated</code><span>. Besides, even though the model is only 50% correct in
+                </span><code>highly top rated</code><span> and </span><code>somewhat top rated</code><span>, it is at
+                    least
+                    misclassifying them to a similar class.</span></p>
+        </section>
+
+        <section id="reddit-thoughts">
+            <h3><span>Thoughts</span></h3>
+            <p><span>Honestly, all three decision trees above are not performing well. This might be caused by the size
+                    of
+                    training text, especially for this type of partitioning in supervised learning. The features
+                    acquired in
+                    training might not be as representative as expected. A large body of text data would definitely
+                    help.</span>
+            </p>
+            <p><span>A second thought: maybe the manual splitting of a numeric target is just too random. An imbalanced
+                    set of
+                    classes increases the classification difficulty.</span></p>
+            <p><span>Nevertheless, hopefully after some parameter tuning, the models can contribute more to predicting
+                    the
+                    post quality. Still, the first predictive model is labeled as a classification task. An alternative
+                    regression
+                    model should suffice with the raw data. Anyways, it is a test run by the end of the day.</span></p>
+            <p>&nbsp;</p>
+        </section>
+
+        <section id="curry">
+            <h2><span>Stephen Curry's three-point shooting prediction</span></h2>
+
+            <p><span>On to the next part, it investigates some on-court offensive situations that a player could face.
+                    This is
+                    different from </span><a href='06-arm-and-networks.html'><span>the study on shot
+                        selection</span></a><span>
+                    last time. Hopefully, after some parameter tweaking, a decision tree could accurately predict if a
+                    shot is
+                    going in.</span></p>
+        </section>
+
+        <section id="curry-data">
+            <h3><span>Data</span></h3>
+
+            <figcaption>
+                <img src="img/07-curry.gif" alt="reddit-tree3-cm-complete" class="article-img">
+            </figcaption>
+
+            <p><span>This model utilizes the play-by-play shot attempts data. A slice of Stephen Curry’s 3-point shots
+                    is the
+                    object of interest for the decision tree training.</span></p>
+
+            <figure>
+                <img src="img/07-data-glimpse.png" alt="curry-data" class="article-img-no-shadow">
+                <figcaption>A glimpse of Curry's 3pt data.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+        </section>
+
+        <section id="spec-tuning">
+            <h3><span>Spec tuning</span></h3>
+            <p><span>The data is divided into 5 folds, and different combinations of parameters are tested for the best
+                    performance. The process closely follows the R package </span><code>{tidymodels}</code><span>&#39;s
+                </span><a href='https://www.tidymodels.org/start/tuning/'><span>documentation</span></a><span>.</span>
+            </p>
+            <p><span>A 4-level gird search is applied for testing the optimal combo of parameters.</span></p>
+
+            <figure>
+                <img src="img/07-grid-search.png" alt="spec-tuning" class="article-img-no-shadow">
+                <figcaption>Spec of parameters.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The model training process takes over than one minute. Two metrics for classification are
+                    considered:
+                </span><code>accuracy</code><span> and </span><code>roc_auc</code><span>.</span></p>
+
+            <figure>
+                <img src="img/07-model-metrics.png" alt="model-metrics" class="article-img-no-shadow">
+                <figcaption>Model metrics after tuning the specs.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The model selection step can be visualized as below:</span></p>
+
+            <figure>
+                <img src="img/07-model-selection.png" alt="model-selection-1" class="article-img-no-shadow">
+                <figcaption>Model selection by visualization.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>And this can be automated by commands too.</span></p>
+
+            <figure>
+                <img src="img/07-model-selection-2.png" alt="model-selection-2" class="article-img-no-shadow">
+                <figcaption>Model selection by commands.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>In the following sections, the metrics </span><code>accuracy</code><span> and
+                </span><code>roc_auc</code><span> are selected respectively as the tree picking criteria.</span></p>
+        </section>
+
+        <section id="curry-tree1">
+            <h3><span>tree1: accuracy</span></h3>
+            <blockquote>
+                <p><span>Warning: I’ve been trying really hard to elegantly visualize a rpart object with the available
+                        R
+                        packages. Unfortunately, there are no good ones compatible with
+                    </span><code>{ggplot2}</code><span> yet, so
+                        I cannot really tweak the plot in my familiar syntax. Plus, the trees generated here are really
+                        complex; the
+                        final output seems to be very messy. Therefore, as a result, the resolution is not
+                        optimal.</span></p>
+            </blockquote>
+            <blockquote>
+                <p><span>Note that since the two metrics overlap in selecting the best model available, we decide to
+                        keep the
+                        optimal one for </span><code>roc_auc</code><span> and choose the fourth-best by
+                    </span><code>accuracy</code><span>.</span></p>
+            </blockquote>
+            <p><span>The first tree is picked by selecting the fourth-best model ranking by model’s accuracy on training
+                    data.</span></p>
+
+            <figure>
+                <img src="img/07-curry-tree1.png" alt="curry-tree1" class="article-img-no-shadow">
+                <figcaption>Decision tree of tree1.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>Its feature importance is ranked like this:</span></p>
+
+            <figure>
+                <img src="img/07-curry-tree1-fi.png" alt="curry-tree1-fi" class="article-img-no-shadow">
+                <figcaption>Feature importance of tree1.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>It seems that the variable </span><code>y</code><span> (the coordinate that indicates the vertical
+                    distance), </span><code>margin</code><span> (leading or trailing in scores), and
+                </span><code>x</code><span>
+                    (the coordinate that means the horizontal distance) are the top three variables that determine if
+                    Stephen’s
+                    shot scores or not.</span></p>
+
+            <figure>
+                <img src="img/07-curry-tree1-cm.png" alt="curry-tree1-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of tree1.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>And finally, a test run is carried out on testing data, and a corresponding confusion matrix is
+                    generated.</span></p>
+        </section>
+
+        <section id="curry-tree2">
+            <h3><span>tree2: roc_auc</span></h3>
+            <p><span>Similarly, for the second tree, the metric used here is </span><code>roc_auc</code><span>.</span>
+            </p>
+
+            <figure>
+                <img src="img/07-curry-tree2.png" alt="curry-tree2" class="article-img-no-shadow">
+                <figcaption>Decision tree of tree2.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The feature importance constitution remains unchanged.</span></p>
+
+            <figure>
+                <img src="img/07-curry-tree2-fi.png" alt="curry-tree2-fi" class="article-img-no-shadow">
+                <figcaption>Feature importance of tree2.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The order stays the same, but the relative importance. Coincidentally, both decision trees have
+                    very
+                    similar performance on testing data.</span></p>
+
+            <figure>
+                <img src="img/07-curry-tree2-cm.png" alt="curry-tree2-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of tree2.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+        </section>
+
+        <section id="curry-tree3">
+            <h3><span>tree3: hack</span></h3>
+            <p><span>The same hack is applied to the complete data set for the third tree, which means the decision tree
+                    is
+                    trained with all the available data. In reality, this is risky due to overfitting. Nonetheless, this
+                    is a test
+                    run. The third tree looks like this:</span></p>
+
+            <figure>
+                <img src="img/07-curry-tree3.png" alt="curry-tree3" class="article-img-no-shadow">
+                <figcaption>Decision tree of tree3.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>This time the feature importance varies a lot. Both the </span><code>shot_type</code><span> and
+                </span><code>shot_clock</code><span> are becoming the more critical speakers when making
+                    decisions.</span></p>
+
+            <figure>
+                <img src="img/07-curry-tree3-fi.png" alt="curry-tree3-fi" class="article-img-no-shadow">
+                <figcaption>Feature importance of tree3.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>The performance, as expected, is better than the previous two. Apparently, this is the result of
+                    overfitting. Such a model could be extremely good-looking if it “remembers” everything it learned.
+                    That’s
+                    technically not a “prediction,” though.</span></p>
+
+            <figure>
+                <img src="img/07-curry-tree3-cm.png" alt="curry-tree3-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of tree3.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+        </section>
+
+        <section id="curry-tree-fi-compare">
+            <h3><span>Feature importance comparison</span></h3>
+
+            <p><span>A quick and dirty radar plot would be perfect for feature importance compariso among the three
+                    decision tree models.</span></p>
+
+            <p><span>Tree1 and tree2 both share the very similarities, as tree3 is the odd one.</span></p>
+
+            <iframe width="100%" height="800" frameborder="0"
+                src="https://observablehq.com/embed/@rexarski/decision-tree-feature-importance-for-different-models?cell=*"></iframe>
+        </section>
+
+        <section id="summary">
+            <h2><span>Summary (of two predictions)</span></h2>
+            <p><span>Frankly speaking, decision trees are useful and interpretable supervised learning for some simple
+                    tasks,
+                    both classification and regression. However, nothing is truly omnipotent. Impaired performance on
+                    those two
+                    scenarios above definitely exposes the drawbacks of decision trees.</span></p>
+            <p><span>Decision trees are sensitive to small perturbations. The trees are interpretable but could vary
+                    dramatically. Furthermore, trees are overfitting-prone. In addition, they don’t handle out-of-sample
+                    predictions well.</span></p>
+            <p><span>For instance, if a new category of Reddit threads upvote ratio is introduced, or a new scenario of
+                    shot
+                    attempt is brought up, any decision tree model built above will just randomly guess the result.
+                    Something new
+                    to them is just something new to us. When we face the unknown, we take a guess.</span></p>
+            <p><span>But luckily, as the big brother of decision trees, the </span><a
+                    href='07-random-forest.html'><strong><span>random forest</span></strong></a><span> might just be the
+                    easily
+                    reachable solution. And it will be discussed in another part of the portfolio.</span></p>
+            <p><span>So, back to the topic, some other thoughts might not be closely affiliated with this part but are
+                    worth
+                    discussing:</span></p>
+            <ol>
+                <li><span>A predictive model for guessing if a shot can be made has an accuracy slightly higher than
+                        50%. Is it
+                        good?</span></li>
+                <li><span>Does that mean another model based on tossing a coin is basically the same as it?</span></li>
+                <li><span>Maybe taking a player’s field goal percentage is a good idea when building a specific decision
+                        tree
+                        for him.</span></li>
+                <li><span>As for the prediction of upvotes of a Reddit post, some non-textual data might be a excellent
+                        addition
+                        to the model, like the general popularity of that subreddit, the media type of that thread, the
+                        posting
+                        time, etc.</span></li>
+            </ol>
+            <p>&nbsp;</p>
+        </section>
+
+        <hr>
+
+        <footer class="footer">
+            <p>Copyright &copy; 2021 <a href="https://qrui.xyz">Ruì Qiū</a></p>
+        </footer>
+    </article>
+
+    <script src="js/script.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [[' $', '$'], ['\\(', '\\)']]
+            }
+        };</script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</body>
+
+</html>
