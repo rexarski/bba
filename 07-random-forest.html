@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Random Forest - Rui Qiu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="sidebar">
+    <nav>
+        ◀️ <a href="index.html" class="return-button">Back</a>
+        <ul>
+            <li><a href="#spec-tuning">Spec tuning</a></li>
+            <li><a href="#evaluation">Evaluation</a></li>
+            <li><a href="#visualization">Visualization</a></li>
+            <li><a href="#thoughts">Thoughts</a></li>
+        </ul>
+
+        <svg xmlns=" http://www.w3.org/2000/svg">
+            <path />
+        </svg>
+
+    </nav>
+    <article id="top">
+        <div class="subheading">Part 7 Extra: Random Forest</div>
+        <h1>The underperformance of a random forest</h1>
+
+        <p><span>Rui Qiu</span></p>
+        <p><span>Updated on 2021-11-05.</span></p>
+        <br>
+
+        <blockquote>
+            <ul>
+                <li>
+                    <p><span>Data</span></p>
+                    <ul>
+                        <li><span>pbpstats-tracking-shots-cleaned, </span><a
+                                href='https://github.com/rexarski/box2box/blob/main/data/nba-pbp/pbpstats-tracking-shots-cleaned.csv'><span>csv</span></a>
+                        </li>
+                        <li><span>stephen-curry-3, </span><a
+                                href='https://github.com/rexarski/box2box/blob/main/data/nba-pbp/stephen-curry-3.csv'><span>csv</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <p><span>Script</span></p>
+                    <ul>
+                        <li><a
+                                href='https://github.com/rexarski/box2box/blob/main/nba-dt/shot-dt.R'><span>shot-dt.R</span></a><span>
+                                (including the random forest model tuning.)</span></li>
+                    </ul>
+                </li>
+            </ul>
+        </blockquote>
+        <p><span>In this part, the data is inherited from Part 7 </span><a href='07-decision-tree.html'><span>Decision
+                    Tree</span></a><span>, where Stephen Curry’s three-pointer shooting data is used to build a
+                predictive
+                model. The goal is to rebuild the model with a random forest, expecting a better overall model
+                performance.</span></p>
+
+        <section id="spec-tuning">
+            <h2><span>Spec tuning</span></h2>
+            <p><span>Just like the tuning process for decision tree models, a grid search is applied to a group of
+                    combinations of parameters.</span></p>
+
+            <figure>
+                <img src="img/07-rf-01.png" alt="rf-01" class="article-img-no-shadow">
+                <figcaption>Open in new tab to see in full size.</figcaption>
+            </figure>
+
+            <p><span>Specifically, the parameter</span><code>mtry()</code><span> is set from 3 to 6 because there are
+                    only 10
+                    variables in the data set. What people usually expect from </span><code>mtry()</code><span> values
+                    is that
+                    they should be somewhere in the middle between 1 and 10, avoiding values close to the ends.</span>
+            </p>
+            <p><span>Afterwards, the </span><code>show_best(&quot;roc_auc&quot;)</code><span> will list the top 5 best
+                    models
+                    ranking by their </span><code>roc_auc</code><span>.</span></p>
+            <p><span>Of course, the models are trained on training data only.</span></p>
+
+            <figure>
+                <img src="img/07-rf-02.png" alt="rf-02" class="article-img-no-shadow">
+                <figcaption>Open in new tab to see in full size.</figcaption>
+            </figure>
+
+        </section>
+
+        <section id="evaluation">
+            <h2><span>Evaluation</span></h2>
+            <p><span>The random forest (workflow) with the best </span><code>roc_auc</code><span> is chosen and fit with
+                    training data. It generates predictions on the testing data.</span></p>
+            <p><span>last_fit() will fit our wf to the training data and genearte predictions on the testing
+                    data.</span></p>
+
+            <figure>
+                <img src="img/07-rf-03.png" alt="rf-03" class="article-img-no-shadow">
+                <figcaption>Open in new tab to see in full size.</figcaption>
+            </figure>
+
+            <p><span>The confusion matrix, however, shows a concerning result again. The random forest barely improves
+                    the
+                    model’s performance. It’s almost a 50-50 situation once more.</span></p>
+            <figure>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th><span>Truth</span></th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong><span>Prediction</span></strong></td>
+                            <td><strong><span>FALSE</span></strong></td>
+                            <td><strong><span>TRUE</span></strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong><span>FALSE</span></strong></td>
+                            <td><span>24</span></td>
+                            <td><span>21</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong><span>TRUE</span></strong></td>
+                            <td><span>22</span></td>
+                            <td><span>21</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </figure>
+            <p>&nbsp;</p>
+        </section>
+
+        <section id="visualization">
+            <h2><span>Visualization</span></h2>
+
+            <p><span>To visualize a random forest is always a challenge, especially with R. To start, there’s </span><a
+                    href='https://stackoverflow.com/questions/67658683/r-tidymodels-is-it-possible-to-plot-the-trees-for-a-random-forest-model-in-tid'><span>no
+                        built-in function to plot</span></a><span> a </span><a
+                    href='https://github.com/imbs-hl/ranger'><span>
+                    </span><code>{ranger}</code></a><span> tree or a </span><a
+                    href='https://cran.r-project.org/web/packages/randomForest/index.html'><code>{randomForest}</code></a><span>
+                    tree. However, the random forest is made up of hundreds of decision trees. Plotting each of them is
+                    definitely
+                    not a sensible option. On the other hand, plotting a few sample trees does not actually provide any
+                    insights.</span></p>
+            <p><span>Still, plotting the feature importance of a random forest is reasonable.</span></p>
+
+            <figure>
+                <img src="img/07-rf-fi.png" alt="rf-fi" class="article-img-no-shadow">
+                <figcaption>Feature importance of the random forest.<br>Open in new tab to see in full size.
+                </figcaption>
+            </figure>
+
+            <p><span>Another workaround is to use </span><a
+                    href='https://chrisbeckett8.github.io/Rfviz.html'><code>{rfviz}</code></a><span> to generate
+                    interactive
+                    plots.</span></p>
+
+            <figure>
+                <img src="img/07-rfviz.gif" alt="rfviz" class="article-img">
+                <figcaption>
+                    <pre>rvfiz</pre> interactive plots.
+                </figcaption>
+            </figure>
+        </section>
+
+        <section id="thoughts">
+            <h2><span>Thoughts</span></h2>
+
+            <p><span>In the end, we still end up with an underperforming random forest model. It feels like it goes back
+                    around and has achieved nothing. Stephen Curry’s career 3-pointers percentage is </span><a
+                    href='https://www.basketball-reference.com/players/c/curryst01.html'><span>0.432</span></a><span>.
+                    In other
+                    words, technically, if a model constantly guesses the response to be
+                </span><code>FALSE</code><span>, it will
+                    attain an overall accuracy of 1-0.432=0.568, which is close to the optimal decision tree from part
+                    7.</span>
+            </p>
+            <p><span>A random forest is suitable for most cases where a large dataset is available, and interpretability
+                    is
+                    not a major concern.</span></p>
+            <p><span>In </span><a
+                    href='https://stats.stackexchange.com/questions/112148/when-to-avoid-random-forest'><span>this
+                        post</span></a><span> from StackExchange, Sycorax lists three cases where random forests could
+                    underperform.
+                    The following two need to be emphasized.</span></p>
+            <ol>
+                <li><strong><span>Sparsity</span></strong><span>. This is not the issue in the random forest above.
+                        Still, it is
+                        a concern for the Reddit upvote ratio prediction.</span></li>
+                <li><strong><span>Random forests basically only work on tabular data</span></strong><span>. The
+                        variables
+                    </span><code>x</code><span> and </span><code>y</code><span> are the coordinates on the court, which
+                        somehow
+                        are not well-approximated by rectangular partitions.</span></li>
+            </ol>
+            <p><span>Finally, maybe a logistic regression is a better fit in this three-pointer shooting
+                    prediction.</span>
+            </p>
+        </section>
+
+        <hr>
+
+        <footer class="footer">
+            <p>Copyright &copy; 2021 <a href="https://qrui.xyz">Ruì Qiū</a></p>
+        </footer>
+    </article>
+
+    <script src="js/script.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [[' $', '$'], ['\\(', '\\)']]
+            }
+        };</script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</body>
+
+</html>
