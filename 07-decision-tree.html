@@ -19,6 +19,7 @@
                 <li><a href="#reddit-tree1">tree1: Gini index</a></li>
                 <li><a href="#reddit-tree2">tree2: entropy</a></li>
                 <li><a href="#reddit-tree3">tree3</a></li>
+                <li><a href="#reddit-comparison">Comparison</a></li>
                 <li><a href="#reddit-thoughts">Thoughts</a></li>
             </ul>
             <li><a href="#curry">3pt prediction</a></li>
@@ -28,6 +29,7 @@
                 <li><a href="#curry-tree1">tree1: accuracy</a></li>
                 <li><a href="#curry-tree2">tree2: roc_auc</a></li>
                 <li><a href="#curry-tree3">tree3</a></li>
+                <li><a href="#curry-comparison">Comparison</a></li>
             </ul>
             <li><a href="#summary">Summary</a></li>
         </ul>
@@ -291,6 +293,31 @@
                     misclassifying them to a similar class.</span></p>
         </section>
 
+        <section id="reddit-comparison">
+            <h3><span>Comparison of 3 DT on text data</span></h3>
+
+            <p><span>The three decision trees above do share some similarities. For example, if a document (the title of
+                    a Reddit post) contains a TF-IDF of "Barkley" or "Charles Barkley" greater than roughly 0.2, it has
+                    a higher chance to be classified as a top-quality post. This might hints that the quote of Charles
+                    Barkley in a post title is an indicator of popularity.</span></p>
+
+            <p><span>As for the the effectiveness of these three trees, none of them actually clearly classify all the
+                    data. Even at the deepest nodes, the impurity of theirs are still high. Tree2 and tree3 share an
+                    entropy around 0.80, while the Gini index of tree1 is at 0.5.</span></p>
+
+            <p><span>The accuracy calculated by a confusion matrix tells the same story.</span></p>
+
+            <ul>
+                <li>The accuracy of tree1 is 13/20 = 0.65</li>
+                <li>The accuracy of tree2 is 12/20 = 0.60</li>
+                <li>The accuracy of tree3 is 13/20 = 0.65</li>
+                <li>The accuracy of tree3 on complete data is 83/100 = 0.83</li>
+            </ul>
+
+            <p><span>The sample size is quite limited, even the highest accuracy is not that ideal.</span></p>
+
+        </section>
+
         <section id="reddit-thoughts">
             <h3><span>Thoughts</span></h3>
             <p><span>Honestly, all three decision trees above are not performing well. This might be caused by the size
@@ -506,16 +533,32 @@
 
         </section>
 
-        <section id="curry-tree-fi-compare">
-            <h3><span>Feature importance comparison</span></h3>
+        <section id="curry-compare">
+            <h3><span>Comparison of 3 DT on mixed data</span></h3>
 
-            <p><span>A quick and dirty radar plot would be perfect for feature importance compariso among the three
+            <p><span>A quick and dirty radar plot would be perfect for feature importance comparison among the three
                     decision tree models.</span></p>
 
-            <p><span>Tree1 and tree2 both share the very similarities, as tree3 is the odd one.</span></p>
+            <p><span>Tree1 and tree2 both share a very similar feature composition, as tree3 is the odd one.</span></p>
 
             <iframe width="100%" height="800" frameborder="0"
                 src="https://observablehq.com/embed/@rexarski/decision-tree-feature-importance-for-different-models?cell=*"></iframe>
+
+            <p><span>The accuracy calculated by a confusion matrix tells the same story.</span></p>
+
+            <ul>
+                <li>The accuracy of tree1 is (24+26)/(24+16+22+26) = 0.568</li>
+                <li>The accuracy of tree2 is (27+23)/(27+23+19+19) = 0.568</li>
+                <li>The accuracy of tree3 is (28+36)/(28+36+6+18) = 0.727</li>
+            </ul>
+
+            <p><span>The tree3 has the best accuracy on paper. However, this is due to the inclusion of all data
+                    available. And it's strange to see even the two models of tree1 and tree2 have different parameters,
+                    they still look alike in many ways such as the tree structure, feature importance and final
+                    accuracy. They are definitely not identical, as the confusion matrices also suggest. Maybe add more
+                    levels in the grid search would result in more combinations of model parameters so that a better
+                    model would finally emerge.</span></p>
+
         </section>
 
         <section id="summary">
