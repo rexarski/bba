@@ -200,7 +200,8 @@
                 </figcaption>
             </figure>
 
-            <p><span>The confusion matrix is generated based on the portion of test data.</span></p>
+            <p><span>The confusion matrix is generated based on the portion of test data. The in-sample accuracy is
+                    13/20 = 0.65</span></p>
             <p><span>Both text and visualization versions of a confusion matrix are produced in the notebook. The
                     confusion
                     matrix indicates a high concentration on the </span><code>very top rated</code><span> category. All
@@ -239,6 +240,9 @@
                 </figcaption>
             </figure>
 
+            <p><span> The in-sample accuracy is
+                    12/20 = 0.60</span></p>
+
             <p><span>In fact, the only category that this decision tree’s predictions are correct about is the
                 </span><code>very top rated</code><span> one. Given the circumstance that the training and testing data
                     are
@@ -276,6 +280,9 @@
                 </figcaption>
             </figure>
 
+            <p><span> The in-sample accuracy on test data is
+                    13/20 = 0.65 again.</span></p>
+
             <p><span>The confusion matrix on testing data finally has some improvement on correctly labeling some
                     classes
                     other than </span><code>very top rated</code><span>.</span></p>
@@ -285,6 +292,8 @@
                 <figcaption>Confusion matrix of tree3 on complete data.<br>Open in new tab to see in full size.
                 </figcaption>
             </figure>
+
+            <p><span>The in-sample accuracy on complete data set is (5+62+11+5)/100=0.83</span></p>
 
             <p><span>Finally, the confusion matrix on the complete data set shows some seemingly impressive accuracy in
                 </span><code>top rated</code><span>. Besides, even though the model is only 50% correct in
@@ -414,7 +423,7 @@
         </section>
 
         <section id="curry-tree1">
-            <h3><span>tree1: accuracy</span></h3>
+            <h3><span>tree1: selected by accuracy</span></h3>
             <blockquote>
                 <p><span>Warning: I’ve been trying really hard to elegantly visualize a rpart object with the available
                         R
@@ -463,10 +472,13 @@
 
             <p><span>And finally, a test run is carried out on testing data, and a corresponding confusion matrix is
                     generated.</span></p>
+
+            <p><span>The in-sample accuracy is
+                    (24+26)/(24+26+22+16)=0.57</span></p>
         </section>
 
         <section id="curry-tree2">
-            <h3><span>tree2: roc_auc</span></h3>
+            <h3><span>tree2: selected by roc_auc</span></h3>
             <p><span>Similarly, for the second tree, the metric used here is </span><code>roc_auc</code><span>.</span>
             </p>
 
@@ -493,6 +505,13 @@
                 <figcaption>Confusion matrix of tree2.<br>Open in new tab to see in full size.
                 </figcaption>
             </figure>
+
+            <p><span>The in-sample accuracy is
+                    (27+23)/(27+23+19+19)=0.57</span></p>
+
+            <p><span>Although the true positive, true negative allocations are different from the previous decision
+                    tree, the final in-sample accuracy is the same. Probably the accuracy won't stay the same for a
+                    larger sample.</span></p>
 
         </section>
 
@@ -530,6 +549,9 @@
                 <figcaption>Confusion matrix of tree3.<br>Open in new tab to see in full size.
                 </figcaption>
             </figure>
+
+            <p><span>The in-sample accuracy is
+                    (28+36)/(28+36+6+18)=0.73</span></p>
 
         </section>
 
