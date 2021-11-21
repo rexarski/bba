@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Naïve Bayes - Rui Qiu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="sidebar">
+    <nav>
+        ◀️ <a href="index.html" class="return-button">Back</a>
+        <ul>
+            <li><a href="#r">R</a>
+                <ul>
+                    <li><a href="#r-data">Data and scripts</a></li>
+                    <li><a href="#r-tuning">Model tuning</a></li>
+                    <li><a href="#r-viz">Visualization</a></li>
+                    <li><a href="#r-interpretation">Interpretation</a></li>
+                </ul>
+            </li>
+            <li><a href="#python">Python</a></li>
+            <ul>
+                <li><a href="#python-data">Data and scripts</a></li>
+                <li><a href="#python-interpretation">Interpretation</a></li>
+            </ul>
+        </ul>
+
+        <svg xmlns=" http://www.w3.org/2000/svg">
+            <path />
+        </svg>
+
+    </nav>
+    <article id="top">
+        <div class="subheading">Part 8: Naïve Bayes</div>
+        <h1>A tale of two classifiers part 1</h1>
+
+        <p><span>Rui Qiu</span></p>
+        <p><span>Updated on 2021-11-21.</span></p>
+        <br>
+
+        <p><span>The main focus of this part of the portfolio and the next, will be utilizing two classifiers, namely
+                naïve Bayes and SVM, to make the following two predictions:</span></p>
+        <ol>
+            <li><span>To predict the shot attempt results of Toronto Raptors (2020-2021 season).</span></li>
+            <li><span>To predict the upvote ratio of reddit threads based on its title.</span></li>
+        </ol>
+
+        <section id="r">
+            <h2><span>Mixed record data with R</span></h2>
+        </section>
+
+
+        <section id="r-data">
+            <h3><span>Data and scripts</span></h3>
+
+            <blockquote>
+                <ul>
+                    <li><span>Data: </span><a
+                            href='https://github.com/rexarski/box2box/blob/main/data/nba-pbp/2020-cleaned-by-team/team-shots-TOR.csv'><span>team-shots-TOR.csv</span></a>
+                    </li>
+                </ul>
+                <ul>
+                    <li><span>Script: </span><a
+                            href='https://github.com/rexarski/box2box/blob/main/nba-nb-svm/nb-svm-script.R'><span>nb-svm-script.R</span></a>
+                    </li>
+                </ul>
+            </blockquote>
+
+            <p><span>The data consists of Toronto Raptors’ shot attempt data (mostly from 2020-2021 season) with the
+                    following
+                    general structure (with both numeric and categorical features):</span></p>
+
+            <figure>
+                <img src="img/08-tor-data.png" alt="tor-data" class="article-img-no-shadow">
+                <figcaption>A glimpse of shot attempts data.</figcaption>
+            </figure>
+
+            <p><span>The data set is also split into a 70-30 train-test split, stratified by the result
+                </span><code>made</code><span>.</span></p>
+
+            <figure>
+                <img src="img/08-tor-split.png" alt="tor-split" class="article-img-no-shadow">
+                <figcaption>Splitting data.</figcaption>
+            </figure>
+        </section>
+
+        <section id="r-tuning">
+            <h3><span>Model tuning</span></h3>
+            <p><code>{caret}</code><span> package is used to conduct a 10-fold cross validation.</span></p>
+            <p><span>One naïve version of naïve bayes classifiers, without any parameter tuning, is concluded as
+                    below:</span>
+            </p>
+
+            <figure>
+                <img src="img/08-nb-m1.png" alt="nb-m1" class="article-img-no-shadow">
+                <figcaption>nb.m1</figcaption>
+            </figure>
+
+            <p><span>Take a look at its confusion matrix and mean accuracy:</span></p>
+
+            <figure>
+                <img src="img/08-nb-m1-cm.png" alt="nb-m1-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of nb.m1.</figcaption>
+            </figure>
+
+            <p><span>The overall accuracy is 81.12%, not bad. But apparently, the beauty of model selection is to fine
+                    tune
+                    some hyperparameters so that a model could improve itself.</span></p>
+            <p><span>The following three hyperparameters are involved:</span></p>
+            <ul>
+                <li><code>usekernel</code><span>: use a kernel density estimate for continuous variables vs a Gaussian
+                        density
+                        estimate.</span></li>
+                <li><code>adjust</code><span>: adjust the bandwidth of the kernel density (larger numbers mean more
+                        flexible
+                        density estimate)</span></li>
+                <li><code>fL</code><span>: Laplace smoother</span></li>
+            </ul>
+            <p><span>Again, the grid search approach is used to accomplish this mission. In addition, the numeric
+                    predictors
+                    are preprocessed with </span><code>“center&quot;</code><span> and </span><code>“scale”</code><span>,
+                    i.e.,
+                    standardization.</span></p>
+            <p><span>The resulted models are ordered by accuracy as the selection criterion. Top 5 of them are displayed
+                    below:</span></p>
+
+            <figure>
+                <img src="img/08-nb-m2-top5.png" alt="nb-m2-top5" class="article-img-no-shadow">
+                <figcaption>Top 5 models from nb.m2 by accuracy.</figcaption>
+            </figure>
+
+            <p><span>As the tuning process, it can be visualized as the following two charts as well:</span></p>
+
+            <figure>
+                <img src="img/08-nb-tuning.png" alt="nb-tuning" class="article-img">
+                <figcaption>The tuning process of nb.m2.</figcaption>
+            </figure>
+
+            <p><span>The overall accuracy of tuned version naïve Bayes is 81.21%, slightly better than the untuned
+                    version.</span></p>
+
+            <figure>
+                <img src="img/08-nb-m2-cm.png" alt="nb-m2-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of nb.m2 (best model.)</figcaption>
+            </figure>
+
+            <p><span>Then the testing data is validated on selected naïve Bayes model, which returns the following
+                    confusion
+                    matrix:</span></p>
+
+            <figure>
+                <img src="img/08-nb-m2-pred-cm.png" alt="nb-m2-pred-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of nb.m2 (best model) on testing data.</figcaption>
+            </figure>
+
+            <p><span>The result is very uplifting as the model actually outperforms itself with training data, which
+                    eventually reaches an accuracy of 82.63%.</span></p>
+        </section>
+
+        <section id="r-viz">
+            <h3><span>Visualization of NB prediction</span></h3>
+            <p><span>To see how the model works in practice, two visualizations are plotted to see the actual shots
+                    made/missed and the predicted shots made/missed.</span></p>
+
+            <figure>
+                <img src="img/08-nb-actual-shot-attempts.png" alt="nb-actual" class="article-img">
+                <figcaption>Actual shot attempts.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/08-nb-predicted-shot-attempts.png" alt="nb-predicted" class="article-img">
+                <figcaption>Predicted shot attempts.</figcaption>
+            </figure>
+
+            <p><span>It turns out most of the deviations between the reality and the prediction are in midranges and
+                    45-degree
+                    three-pointers.</span></p>
+            <p><span>Finally, a visualization is carried out to show the overall prediction accuracy of a fine-tuned
+                    naïve
+                    Bayes classifier:</span></p>
+
+            <figure>
+                <img src="img/08-nb-prediction-accuracy.png" alt="nb-prediction-accuracy" class="article-img">
+                <figcaption>nb.m2 prediction accuracy.</figcaption>
+            </figure>
+
+        </section>
+
+        <section id="r-interpretation">
+            <h3><span>Interpretation</span></h3>
+            <p><span>Recall previous attempts to predict if a shot is made with tree-based classifiers, the overall
+                    accuracy
+                    is barely over 50%. As mentioned last time, if a classifier, especially a binary classifier, only
+                    performs like
+                    flipping a coin, then it is really bad model.</span></p>
+            <p><span>Is it due to the nature of the data? The answer is, “it’s possible”from last time.</span></p>
+            <p><span>However, a very similar subset of data is used to capture the shot attempt pattern with a naïve
+                    Bayes
+                    classifier. The core idea is the following multinomial formula by Bayes theorem:</span></p>
+            <p>$p(\mathbf{x}|C_k)=\frac{(\sum^n_{i=1}x_i)!}{\prod^n_{i=1}x_i!}\prod^n_{i=1}p_{ki}^{x_i}$</p>
+
+            <p><span>where x’s are possible values of all the predictors.</span></p>
+            <p><span>Then the class C is selected by the </span><code>argmax</code><span> of such a product. It’s more
+                    or less
+                    like a voting procedure, the class results in a higher probability will be the predicted class of
+                    this
+                    record.</span></p>
+            <p><span>Intuitively, given a set of predictors, the classifier calculates the separate probabilities that
+                    could
+                    happen under a class </span><code>C_k</code><span>. Then the posterior probability is the joint
+                    probability of
+                    these separate independent probabilities.</span></p>
+            <p><span>However, one should note that in reality, the assumption of independence among features/variables
+                    is very
+                    rare.</span></p>
+            <p><span>Still, the naïve Bayes classifier gives a decent prediction to start this “tale of two
+                    classifiers.” More
+                    to be discussed in the next part of this portfolio.</span></p>
+        </section>
+
+        <section id="python">
+            <h2><span>Text data with Python</span></h2>
+        </section>
+
+        <section id="python-data">
+            <h3><span>Data and scripts</span></h3>
+        </section>
+
+        <section id="python-interpretation">
+            <h3><span>Interpretation</span></h3>
+        </section>
+
+
+        <hr>
+
+        <footer class="footer">
+            <p>Copyright &copy; 2021 <a href="https://qrui.xyz">Ruì Qiū</a></p>
+        </footer>
+    </article>
+
+    <script src="js/script.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };</script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</body>
+
+</html>

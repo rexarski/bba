@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SVM - Rui Qiu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="sidebar">
+    <nav>
+        ◀️ <a href="index.html" class="return-button">Back</a>
+        <ul>
+            <li><a href="#r">R</a>
+                <ul>
+                    <li><a href="#r-data">Data and scripts</a></li>
+                    <li><a href="#r-linear">Linear kernel</a></li>
+                    <li><a href="#r-radial">Radial kernel</a></li>
+                    <li><a href="#r-poly">Polynomial kernel</a></li>
+                    <li><a href="#r-comparison">Comparison</a></li>
+                    <li><a href="#r-interpretation">Interpretation</a></li>
+                </ul>
+            </li>
+            <li><a href="#python">Python</a></li>
+            <ul>
+                <li><a href="#python-data">Data and scripts</a></li>
+                <li><a href="#python-interpretation">Interpretation</a></li>
+            </ul>
+        </ul>
+
+        <svg xmlns=" http://www.w3.org/2000/svg">
+            <path />
+        </svg>
+
+    </nav>
+    <article id="top">
+        <div class="subheading">Part 9: SVM</div>
+        <h1>A tale of two classifiers part 2</h1>
+
+        <p><span>Rui Qiu</span></p>
+        <p><span>Updated on 2021-11-21.</span></p>
+        <br>
+
+        <p><span>This part of the portfolio continues what’s left in the previous one, to make the following two
+                predictions with support vector machine classifiers:</span></p>
+        <ol>
+            <li><span>To predict the shot attempt results of Toronto Raptors (2020-2021 season).</span></li>
+            <li><span>To predict the upvote ratio of reddit threads based on its title.</span></li>
+        </ol>
+
+        <section id="r">
+            <h2><span>Mixed record data with R</span></h2>
+        </section>
+
+
+        <section id="r-data">
+            <h3><span>Data and scripts</span></h3>
+
+            <blockquote>
+                <ul>
+                    <li><span>Data: </span><a
+                            href='https://github.com/rexarski/box2box/blob/main/data/nba-pbp/2020-cleaned-by-team/team-shots-TOR.csv'><span>team-shots-TOR.csv</span></a>
+                    </li>
+                </ul>
+                <ul>
+                    <li><span>Script: </span><a
+                            href='https://github.com/rexarski/box2box/blob/main/nba-nb-svm/nb-svm-script.R'><span>nb-svm-script.R</span></a>
+                    </li>
+                </ul>
+            </blockquote>
+
+            <p><span>The data is the same as the one used in last part of the portfolio. The data consists of Toronto
+                    Raptors’ shot attempt data (mostly from 2020-2021 season) with the
+                    following
+                    general structure (with both numeric and categorical features):</span></p>
+
+            <figure>
+                <img src="img/08-tor-data.png" alt="tor-data" class="article-img-no-shadow">
+                <figcaption>A glimpse of shot attempts data.</figcaption>
+            </figure>
+
+            <p><span>The data set is also split into a 70-30 train-test split, stratified by the result
+                </span><code>made</code><span>.</span></p>
+
+            <figure>
+                <img src="img/08-tor-split.png" alt="tor-split" class="article-img-no-shadow">
+                <figcaption>Splitting data.</figcaption>
+            </figure>
+
+            <p><span>In fact, since the data is inherited from preprocessed data of naïve Bayes classifier, all the
+                    numeric
+                    features are standardized. And the rest of the features are categorical.</span></p>
+
+        </section>
+
+        <section id="r-linear">
+            <h3><span>Model 1 - linear kernel tuning</span></h3>
+            <p><span>Three types of kernels will be tested in the model selection today. They are linear, radial and
+                    polynomial. For each kernel, the tuning process will use a grid search to test different sets of
+                    hyperparameters as always.</span></p>
+            <p><span>The first one to be tested is the linear SVM, with cost from 0 to 2:</span></p>
+
+            <figure>
+                <img src="img/09-svm-linear-tuning.png" alt="svm-linear-tuning" class="article-img">
+                <figcaption>Tuning process of linear SVM.</figcaption>
+            </figure>
+
+            <p><span>The model with </span><code>C=2</code><span> seems to returns the highest accuracy. The detailed
+                    list of
+                    metrics of different model tested with a linear kernel is shown below:</span></p>
+
+            <figure>
+                <img src="img/09-svm-m1.png" alt="svm-m1" class="article-img-no-shadow">
+                <figcaption>svm.m1.</figcaption>
+            </figure>
+
+
+            <p><span>The confusion matrix of selected linear SVM model on testing data is given by:</span></p>
+
+            <figure>
+                <img src="img/09-svm-m1-cm.png" alt="svm-m1-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of svm.m1.</figcaption>
+            </figure>
+
+            <p><span>The accuracy is 83.12%.</span></p>
+        </section>
+
+        <section id="r-radial">
+            <h3><span>Model 2 - radial kernel tuning</span></h3>
+
+            <figure>
+                <img src="img/09-svm-radial-tuning.png" alt="svm-radial-tuning" class="article-img">
+                <figcaption>Tuning process of radial SVM.</figcaption>
+            </figure>
+
+            <p><span>The model with </span><code>C=1</code><span> and </span><code>sigma=0.0133</code><span> seems to
+                    returns
+                    the highest accuracy. The detailed list of metrics of different model tested with a radial kernel is
+                    shown
+                    below:</span></p>
+
+            <figure>
+                <img src="img/09-svm-m2.png" alt="svm-m2" class="article-img-no-shadow">
+                <figcaption>svm.m2.</figcaption>
+            </figure>
+
+            <p><span>The confusion matrix of selected radial-kernel SVM model on testing data is given by:</span></p>
+
+            <figure>
+                <img src="img/09-svm-m2-cm.png" alt="svm-m2-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of svm.m2.</figcaption>
+            </figure>
+
+            <p><span>The accuracy is 83.01%, slightly lower than linear SVM’s.</span></p>
+        </section>
+
+        <section id="r-poly">
+            <h3><span>Model 3 - polynomial kernel tuning</span></h3>
+            <p><span>🖼️09-svm-poly-tuning.png</span></p>
+
+            <figure>
+                <img src="img/09-svm-poly-tuning.png" alt="svm-poly-tuning" class="article-img">
+                <figcaption>Tuning process of polynomial SVM.</figcaption>
+            </figure>
+
+            <p><span>The model with </span><code>degree=2</code><span>, </span><code>scale=0.01</code><span>, and
+                </span><code>C=0.5</code><span> seems to returns the highest accuracy. The detailed list of metrics of
+                    different
+                    model tested with a polynomial kernel is shown below:</span></p>
+
+            <figure>
+                <img src="img/09-svm-m3.png" alt="svm-m3" class="article-img-no-shadow">
+                <figcaption>svm.m3.</figcaption>
+            </figure>
+
+            <p><span>The confusion matrix of selected polynomial-kernel SVM model on testing data is given by:</span>
+            </p>
+
+            <figure>
+                <img src="img/09-svm-m3-cm.png" alt="svm-m3-cm" class="article-img-no-shadow">
+                <figcaption>Confusion matrix of svm.m3.</figcaption>
+            </figure>
+
+            <p><span>The accuracy is 83.06%. It seems that blindly increasing the complexity of the model does not
+                    improve the
+                    accuracy.</span></p>
+        </section>
+
+        <section id="r-comparison">
+            <h3><span>Comparison</span></h3>
+            <p><span>It’s not hard to see these three SVM models are not dramatically in terms of accuracy. Nonetheless,
+                    if
+                    only one model needs to be picked in the end, the linear SVM with the best performance will be the
+                    one, both
+                    because of its accuracy and its relative simplicity.</span></p>
+            <p><span>A visualization of predicted shot attempts versus the actual shot attempts is plotted below:</span>
+            </p>
+
+            <figure>
+                <img src="img/09-svm-prediction-accuracy.png" alt="svm-prediction-accuracy" class="article-img">
+                <figcaption>Predicted shot attempts versus the actual shot attempts.</figcaption>
+            </figure>
+
+            <p><span>Additionally, the prediction done by linear SVM can be compared with naïve Bayes prediction in
+                    parallel.</span></p>
+
+            <figure>
+                <img src="img/09-svm-vs-nb.png" alt="svm-vs-nb" class="article-img-no-shadow">
+                <figcaption>Linear SVM vs naïve Bayes predictions.</figcaption>
+            </figure>
+
+            <p><span>A quick look at the comparison would reveal that both classifiers agree on most of the
+                    predictions.</span></p>
+
+            <figure>
+                <img src="img/09-svm-vs-nb-viz.png" alt="svm-vs-nb-viz" class="article-img">
+                <figcaption>Linear SVM vs naïve Bayes predictions visualized.</figcaption>
+            </figure>
+        </section>
+
+        <section id="r-interpretation">
+            <h3><span>Interpretation</span></h3>
+            <p><span>This is the tricky part of a support vector machine. The SVM usually remains hard to explain as it
+                    draws
+                    decision boundaries repeatedly to separate data points in more (and high) dimensions.</span></p>
+            <p><span>For this selected linear SVM, however, it actually has a useful interpretation:</span></p>
+            <ol>
+                <li><span>The result of a linear SVM is a hyperplane, also refers as the decision boundary that
+                        separates the
+                        predicted classes as best as possible. The weights of a hyperplane can be considered as the
+                        coefficients of
+                        linear equation (but in a higher dimension). Such weights form a vector.</span></li>
+                <li><span>The direction of the vector does the prediction. What it does is it takes all the features of
+                        a record
+                        into account, then calculates the dot product with the vector. The result will be either
+                        positive or
+                        negative, which essentially indicates the which side the predicted value is on.</span></li>
+            </ol>
+            <p><span>Back to the shot attempts of Toronto Raptors, the linear SVM finds the most suitable hyperplane to
+                    cut
+                    through data points in high dimension once and for all. It is definitely not relying on the
+                    coordinates
+                </span><code>x</code><span> and </span><code>y</code><span>, otherwise a clear straight line decision
+                    boundary
+                    would appear in the court visualization above. It’s usually not an ideal case to visualize a
+                    decision boundary
+                    even with a linear SVM as a precondition as the categorical variables prevent the visualization to
+                    be
+                    human-understandable. </span></p>
+        </section>
+
+        <section id="python">
+            <h2><span>Text data with Python</span></h2>
+        </section>
+
+        <section id="python-data">
+            <h3><span>Data and scripts</span></h3>
+        </section>
+
+        <section id="python-interpretation">
+            <h3><span>Interpretation</span></h3>
+        </section>
+
+
+        <hr>
+
+        <footer class="footer">
+            <p>Copyright &copy; 2021 <a href="https://qrui.xyz">Ruì Qiū</a></p>
+        </footer>
+    </article>
+
+    <script src="js/script.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };</script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</body>
+
+</html>
