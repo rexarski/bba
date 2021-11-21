@@ -11,17 +11,18 @@
     <nav>
         ◀️ <a href="index.html" class="return-button">Back</a>
         <ul>
-            <li><a href="#r">R</a>
-                <ul>
-                    <li><a href="#r-data">Data and scripts</a></li>
-                    <li><a href="#r-tuning">Model tuning</a></li>
-                    <li><a href="#r-viz">Visualization</a></li>
-                    <li><a href="#r-interpretation">Interpretation</a></li>
-                </ul>
-            </li>
+            <li><a href="#r">R</a></li>
+            <ul>
+                <li><a href="#r-data">Data and scripts</a></li>
+                <li><a href="#r-tuning">Model tuning</a></li>
+                <li><a href="#r-viz">Visualization</a></li>
+                <li><a href="#r-interpretation">Interpretation</a></li>
+            </ul>
+
             <li><a href="#python">Python</a></li>
             <ul>
                 <li><a href="#python-data">Data and scripts</a></li>
+                <li><a href="#python-model">Model fitting</a></li>
                 <li><a href="#python-interpretation">Interpretation</a></li>
             </ul>
         </ul>
@@ -43,7 +44,7 @@
                 naïve Bayes and SVM, to make the following two predictions:</span></p>
         <ol>
             <li><span>To predict the shot attempt results of Toronto Raptors (2020-2021 season).</span></li>
-            <li><span>To predict the upvote ratio of reddit threads based on its title.</span></li>
+            <li><span>To predict the popularity of reddit threads based on its title.</span></li>
         </ol>
 
         <section id="r">
@@ -225,10 +226,127 @@
 
         <section id="python-data">
             <h3><span>Data and scripts</span></h3>
+
+            <blockquote>
+                <ul>
+                    <li>
+                        <p><span>Data</span></p>
+                        <ul>
+                            <li><a
+                                    href='https://github.com/rexarski/box2box/blob/main/data/nba-reddit/nba-top-100-threads-this-year-cleaned.csv'><span>Raw
+                                        data</span></a></li>
+                            <li><a
+                                    href='https://github.com/rexarski/box2box/blob/main/nba-nb-svm/reddit-unigram-tfidf.csv'><span>Cleaned
+                                        data</span></a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li><span>Script: </span><a
+                            href='https://github.com/rexarski/box2box/blob/main/nba-nb-svm/reddit-nb-svm.ipynb'><span>reddit-nb-svm.ipynb</span></a>
+                    </li>
+                </ul>
+            </blockquote>
+
+            <p><span>Just like the record data, the text data in this section is also from the tree-based classification
+                    chapter.</span></p>
+            <p><span>The data is preprocessed by removing stopwords, conversion to lower case, and then calculated as
+                    Tf-idf.
+                    What is different from last time is that the texts are not stripped as bigrams but unigrams this
+                    time.</span>
+            </p>
+            <p><span>Additionally, the target variable </span><code>upvote_ratio</code><span> is replaced by
+                </span><code>popularity</code><span>, a categorical variable indicating how popular the thread is within
+                    the
+                    time span of a year. To make the classes more balanced, the variable
+                </span><code>popularity</code><span> is
+                    trivially set as either </span><code>Extremely Popular</code><span> (top 50) or
+                </span><code>Very Popular</code><span> (top 51-100).</span></p>
+            <p><span>The tf-idf values are also standardized, although the matrix is still very sparse due to the nature
+                    of
+                    text data that not too many words are repeated in each document.</span></p>
+            <p><span>The general structure of the preprocessed data looks like this:</span></p>
+
+            <figure>
+                <img src="img/08-reddit-data.png" alt="reddit-data" class="article-img-no-shadow">
+                <figcaption>Reddit threads text data.</figcaption>
+            </figure>
+
+            <p><span>A wordcloud is also plotted like last time.</span></p>
+
+            <figure>
+                <img src="img/08-reddit-title-wordcloud2.png" alt="reddit-title-wordcloud2" class="article-img">
+                <figcaption>A wordcloud of text data.</figcaption>
+            </figure>
+
+            <p><span>Of course, the text data is also split into a pair of 80-20 training/testing sets.</span></p>
+        </section>
+
+        <section id="python-model">
+            <h3><span>Model fitting</span></h3>
+
+            <p><span>Then the preprocessed data is fitted in a multinomial naïve Bayes model. The resulted confusion
+                    matrix is
+                    plotted below:</span></p>
+
+            <figure>
+                <img src="img/08-reddit-nb-cm.png" alt="reddit-nb-cm" class="article-img">
+                <figcaption>Confusion matrix of naïve Bayes classifier on text data.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/08-reddit-nb-metrics.png" alt="reddit-nb-metrics" class="article-img-no-shadow">
+                <figcaption>Metrics table of naïve Bayes classifier on text data.</figcaption>
+            </figure>
+
+            <p><span>The overall accuracy is 60%.</span></p>
+            <p><span>Furthermore, a naïve Bayes model in fact calculates the probabilties of each class. The following
+                    is a
+                    histogram displaying the probabilties of the test records to be both classes. Orange stands for
+                </span><code>Extremely Popular</code><span>, while blue means
+                </span><code>Very Popular</code><span>.</span></p>
+
+            <figure>
+                <img src="img/08-reddit-nb-prediction-hist.png" alt="reddit-nb-prediction-hist" class="article-img">
+                <figcaption>Prediction histogram of naïve Bayes classifier on text data.</figcaption>
+            </figure>
+            <p><span>Finally, an ROC curve is plotted for the “goodness” of such a model, which will be discussed in the
+                    later
+                    paragraph.</span></p>
+
+            <figure>
+                <img src="img/08-reddit-nb-roc.png" alt="reddit-nb-roc" class="article-img">
+                <figcaption>ROC of naïve Bayes classifier on text data.</figcaption>
+            </figure>
         </section>
 
         <section id="python-interpretation">
             <h3><span>Interpretation</span></h3>
+
+            <p><span>Without doubt, the naïve Bayes classifier with an accuracy of 60% is not ideal, especially for a
+                    testing
+                    data set of size 20. It’s just slightly better than flipping a coin, or randomly guess everything is
+                    of one
+                    class only. One could not even be sure if the 60% is just being “lucky”. It is almost conclusive to
+                    say that
+                    predicting the popularity barely based on the word choice of titles is impossible.</span></p>
+            <p><span>The ROC curve from the last plot also demonstrates the model's poor performance. In contrast, a
+                    decent model should close in the top left corner as much as possible.</span></p>
+            <p><span>Nevertheless, there are some highlights of such a model:</span></p>
+            <ol>
+                <li><span>The training process is extremely fast. (Thanks to the small size of the data as well.)</span>
+                </li>
+                <li><span>The results are easy to interpret. A vector of probabilities will directly tell the reader
+                        what the
+                        model “thinks” the record belongs to.</span></li>
+                <li><span>The model almost does not need any tuning.</span></li>
+            </ol>
+            <p><span>But we also need to be careful about the assumption that each variable should be independent of
+                    each
+                    other. This rarely happens in real life, including this case. Just imagine whether the occurrences
+                    of the
+                    following two words are independent:“Washington” and “Wizards”.</span></p>
+            <p><span>No models are perfect, some even fail its own assumptions.</span></p>
         </section>
 
 

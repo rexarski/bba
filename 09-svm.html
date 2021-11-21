@@ -11,19 +11,22 @@
     <nav>
         ◀️ <a href="index.html" class="return-button">Back</a>
         <ul>
-            <li><a href="#r">R</a>
-                <ul>
-                    <li><a href="#r-data">Data and scripts</a></li>
-                    <li><a href="#r-linear">Linear kernel</a></li>
-                    <li><a href="#r-radial">Radial kernel</a></li>
-                    <li><a href="#r-poly">Polynomial kernel</a></li>
-                    <li><a href="#r-comparison">Comparison</a></li>
-                    <li><a href="#r-interpretation">Interpretation</a></li>
-                </ul>
-            </li>
+            <li><a href="#r">R</a></li>
+            <ul>
+                <li><a href="#r-data">Data and scripts</a></li>
+                <li><a href="#r-linear">Linear kernel</a></li>
+                <li><a href="#r-radial">RBF kernel</a></li>
+                <li><a href="#r-poly">Polynomial kernel</a></li>
+                <li><a href="#r-comparison">Comparison</a></li>
+                <li><a href="#r-interpretation">Interpretation</a></li>
+            </ul>
+
             <li><a href="#python">Python</a></li>
             <ul>
                 <li><a href="#python-data">Data and scripts</a></li>
+                <li><a href="#python-linear">Linear kernel</a></li>
+                <li><a href="#python-poly">Polynomial kernel</a></li>
+                <li><a href="#python-radial">RBF kernel</a></li>
                 <li><a href="#python-interpretation">Interpretation</a></li>
             </ul>
         </ul>
@@ -45,7 +48,7 @@
                 predictions with support vector machine classifiers:</span></p>
         <ol>
             <li><span>To predict the shot attempt results of Toronto Raptors (2020-2021 season).</span></li>
-            <li><span>To predict the upvote ratio of reddit threads based on its title.</span></li>
+            <li><span>To predict the popularity of reddit threads based on its title.</span></li>
         </ol>
 
         <section id="r">
@@ -126,16 +129,16 @@
         </section>
 
         <section id="r-radial">
-            <h3><span>Model 2 - radial kernel tuning</span></h3>
+            <h3><span>Model 2 - RBF kernel tuning</span></h3>
 
             <figure>
                 <img src="img/09-svm-radial-tuning.png" alt="svm-radial-tuning" class="article-img">
-                <figcaption>Tuning process of radial SVM.</figcaption>
+                <figcaption>Tuning process of RBF kernel SVM.</figcaption>
             </figure>
 
             <p><span>The model with </span><code>C=1</code><span> and </span><code>sigma=0.0133</code><span> seems to
                     returns
-                    the highest accuracy. The detailed list of metrics of different model tested with a radial kernel is
+                    the highest accuracy. The detailed list of metrics of different model tested with a RBF kernel is
                     shown
                     below:</span></p>
 
@@ -144,7 +147,7 @@
                 <figcaption>svm.m2.</figcaption>
             </figure>
 
-            <p><span>The confusion matrix of selected radial-kernel SVM model on testing data is given by:</span></p>
+            <p><span>The confusion matrix of selected RBF kernel SVM model on testing data is given by:</span></p>
 
             <figure>
                 <img src="img/09-svm-m2-cm.png" alt="svm-m2-cm" class="article-img-no-shadow">
@@ -156,7 +159,6 @@
 
         <section id="r-poly">
             <h3><span>Model 3 - polynomial kernel tuning</span></h3>
-            <p><span>🖼️09-svm-poly-tuning.png</span></p>
 
             <figure>
                 <img src="img/09-svm-poly-tuning.png" alt="svm-poly-tuning" class="article-img">
@@ -255,11 +257,163 @@
 
         <section id="python-data">
             <h3><span>Data and scripts</span></h3>
+
+            <blockquote>
+                <ul>
+                    <li>
+                        <p><span>Data</span></p>
+                        <ul>
+                            <li><a
+                                    href='https://github.com/rexarski/box2box/blob/main/data/nba-reddit/nba-top-100-threads-this-year-cleaned.csv'><span>Raw
+                                        data</span></a></li>
+                            <li><a
+                                    href='https://github.com/rexarski/box2box/blob/main/nba-nb-svm/reddit-unigram-tfidf.csv'><span>Cleaned
+                                        data</span></a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li><span>Script: </span><a
+                            href='https://github.com/rexarski/box2box/blob/main/nba-nb-svm/reddit-nb-svm.ipynb'><span>reddit-nb-svm.ipynb</span></a>
+                    </li>
+                </ul>
+            </blockquote>
+
+            <p><span>Just like the record data, the text data in this section is also from the tree-based classification
+                    chapter.</span></p>
+            <p><span>The data is preprocessed by removing stopwords, conversion to lower case, and then calculated as
+                    Tf-idf.
+                    What is different from last time is that the texts are not stripped as bigrams but unigrams this
+                    time.</span>
+            </p>
+            <p><span>Additionally, the target variable </span><code>upvote_ratio</code><span> is replaced by
+                </span><code>popularity</code><span>, a categorical variable indicating how popular the thread is within
+                    the
+                    time span of a year. To make the classes more balanced, the variable
+                </span><code>popularity</code><span> is
+                    trivially set as either </span><code>Extremely Popular</code><span> (top 50) or
+                </span><code>Very Popular</code><span> (top 51-100).</span></p>
+            <p><span>The tf-idf values are also standardized, although the matrix is still very sparse due to the nature
+                    of
+                    text data that not too many words are repeated in each document.</span></p>
+            <p><span>The general structure of the preprocessed data looks like this:</span></p>
+
+            <figure>
+                <img src="img/08-reddit-data.png" alt="reddit-data" class="article-img-no-shadow">
+                <figcaption>Reddit threads text data.</figcaption>
+            </figure>
+
+            <p><span>Again, the text data is split into a pair of 80-20 training/testing sets.</span></p>
+        </section>
+
+        <section id="python-linear">
+            <h3><span>Linear kernel</span></h3>
+
+            <p><span>The SVM model with linear kernel is tested for a range of different cost parameters, from 0.01 to
+                    100.</span></p>
+            <p><span>The accuracies of these five models are:</span></p>
+
+            <figure>
+                <img src="img/09-reddit-svm-linear-acc.png" alt="reddit-svm-linear-acc" class="article-img-no-shadow">
+                <figcaption>Linear SVM accuracy table.</figcaption>
+            </figure>
+
+            <p><span>Since </span><code>C=1</code><span> has the highest accuracy and it’s the relatively simple one, it
+                    is
+                    selected as the final predictive model. Then the test data is fitted with this model.</span></p>
+
+            <figure>
+                <img src="img/09-reddit-svm-linear-cm.png" alt="reddit-svm-linear-cm" class="article-img">
+                <figcaption>Confusion matrix of Linear SVM.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/09-reddit-svm-linear-metrics.png" alt="reddit-svm-linear-metrics"
+                    class="article-img-no-shadow">
+                <figcaption>Metrics table of Linear SVM.</figcaption>
+            </figure>
+
+            <p><span>The overall accuracy is again, 60%.</span></p>
+        </section>
+
+        <section id="python-poly">
+            <h3><span>Polynomial kernel</span></h3>
+
+            <p><span>The SVM model with polynomial kernel is tested for a range of different degrees, from 1 to
+                    6.</span></p>
+            <p><span>The accuracies of these six models are:</span></p>
+
+            <figure>
+                <img src="img/09-reddit-svm-poly-acc.png" alt="reddit-svm-poly-acc" class="article-img-no-shadow">
+                <figcaption>Polynomial kernel SVM accuracy table.</figcaption>
+            </figure>
+
+            <p><span>Since </span><code>degree=1</code><span> has the highest accuracy and it’s the relatively simple
+                    one, it
+                    is selected as the final predictive model. Then the test data is fitted with this model.</span></p>
+
+            <figure>
+                <img src="img/09-reddit-svm-poly-cm.png" alt="reddit-svm-poly-cm" class="article-img">
+                <figcaption>Confusion matrix of polynomial kernel SVM.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/09-reddit-svm-poly-metrics.png" alt="reddit-svm-poly-metrics"
+                    class="article-img-no-shadow">
+                <figcaption>Metrics table of polynomial kernel SVM.</figcaption>
+            </figure>
+            <p><span>The overall accuracy is 50%.</span></p>
+        </section>
+
+        <section id="python-radial">
+            <h3><span>RBF kernel</span></h3>
+
+            <p><span>The SVM model with RBF kernel is tested for a range of different degrees, from 1 to 6.</span></p>
+            <p><span>The accuracies of these six models are:</span></p>
+
+            <figure>
+                <img src="img/09-reddit-svm-rbf-acc.png" alt="reddit-svm-rbf-acc" class="article-img-no-shadow">
+                <figcaption>RBF kernel SVM accuracy table.</figcaption>
+            </figure>
+
+            <p><span>Since all the </span><code>degree</code><span>s lead to the same testing accuracy, the simplest one
+                    with
+                </span><code>degree=1</code><span> is selected as the final predictive model. Then the test data is
+                    fitted with
+                    this model.</span></p>
+
+            <figure>
+                <img src="img/09-reddit-svm-rbf-cm.png" alt="reddit-svm-rbf-cm" class="article-img">
+                <figcaption>Confusion matrix of RBF kernel SVM.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="img/09-reddit-svm-rbf-metrics.png" alt="reddit-svm-rbf-metrics" class="article-img-no-shadow">
+                <figcaption>Metrics table of RBF kernel SVM.</figcaption>
+            </figure>
+
+            <p><span>Again, the overall accuracy is 50%.</span></p>
         </section>
 
         <section id="python-interpretation">
             <h3><span>Interpretation</span></h3>
         </section>
+
+        <p><span>Comparatively speaking, the linear SVM model seems to be the best one in terms of accuracy.</span></p>
+
+        <p><span>Recall the conclusion from last time (naïve Bayes) and the one from decision tree, it’s not hard to see
+                the inadequacy to predict the classification based on Reddit’s title only.</span></p>
+        <p><span>Furthermore, there might be some hidden factors which affect the relative popularity and upvote ratio
+                of
+                a thread, like the posting time, the authenticity of the news, or the content itself (rather than the
+                abstract
+                headline). Also need to keep in mind that the selecting criterion above is the accuracy of a model,
+                since
+                there is no preference to either class. If there is a preference, the selection criterion might be
+                shifted to
+                precision or recall or even a weighted version of f1 score.</span></p>
+        <p><span>Another takeaway from the model comparison above is, the simpler model sometimes might just be the one
+                with the best performance.</span></p>
 
 
         <hr>
