@@ -15,6 +15,7 @@
             <ul>
                 <li><a href="#r-data">Data and scripts</a></li>
                 <li><a href="#r-tuning">Model tuning</a></li>
+                <li><a href="#r-feature">Feature importance</a></li>
                 <li><a href="#r-viz">Visualization</a></li>
                 <li><a href="#r-interpretation">Interpretation</a></li>
             </ul>
@@ -23,6 +24,7 @@
             <ul>
                 <li><a href="#python-data">Data and scripts</a></li>
                 <li><a href="#python-model">Model fitting</a></li>
+                <li><a href="#python-feature">Feature importance</a></li>
                 <li><a href="#python-interpretation">Interpretation</a></li>
             </ul>
         </ul>
@@ -157,6 +159,27 @@
 
             <p><span>The result is very uplifting as the model actually outperforms itself with training data, which
                     eventually reaches an accuracy of 82.63%.</span></p>
+
+        </section>
+
+        <section id="r-feature">
+
+            <h3><span>Feature importance</span></h3>
+
+            <p><span>The <b>feature importance</b> in an object of
+                    <code>train</code> is rather hard to extract when the naïve Bayes model is filled with imbalanced
+                    categorical data. Given the fact that some features include more than a dozen of possible
+                    categories, for example, the <code>player</code> has almost every active player on Toronto Raptors
+                    roaster from last season, therefore, an alternative approach to represent how relatively important
+                    those features are is to display all the conditional probabilities. The features which vary a lot
+                    between two possible target variables are the ones of greater importance.
+                </span></p>
+
+            <figure>
+                <img src="img/08-nb-feat.png" alt="nb-feat" class="article-img-no-shadow">
+                <figcaption>Conditional probabilities of all features of nb.m2 (best model) on testing data. <br> Open
+                    in a new tab for more details.</figcaption>
+            </figure>
         </section>
 
         <section id="r-viz">
@@ -318,6 +341,25 @@
                 <img src="img/08-reddit-nb-roc.png" alt="reddit-nb-roc" class="article-img">
                 <figcaption>ROC of naïve Bayes classifier on text data.</figcaption>
             </figure>
+        </section>
+
+        <section id="python-feature">
+            <h3><span>Feature importance</span></h3>
+
+            <p><span>The <b>feature importance</b> of the naïve Bayes model on text data, can be represented in the
+                    following numpy array. Since the DTM of text data used in this part is rather large and sparse, the
+                    feature importance has a hard to interpret length of "relative importance" accordingly. A further
+                    dive into the data will reveal that the one with the most importance is the word <b>"deep"</b>,
+                    which could be related to some amazing long-distance three-pointer shootings in the game.</span></p>
+
+            <p><span>Besides, the feature standard deviations are also included:</span></p>
+
+            <figure>
+                <img src="img/08-reddit-nb-feat.png" alt="reddit-nb-feat" class="article-img-no-shadow">
+                <figcaption>Feature importance of naïve Bayes classifier on text data.</figcaption>
+            </figure>
+
+
         </section>
 
         <section id="python-interpretation">
