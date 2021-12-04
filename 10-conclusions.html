@@ -10,11 +10,6 @@
 <body class="sidebar">
     <nav>
         ◀️ <a href="index.html" class="return-button">Back</a>
-        <ul>
-            <li><a href="#revisit">Revisit</a></li>
-            <li><a href="#reality">Reality</a></li>
-            <li><a href="#reflection">Reflection</a></li>
-        </ul>
 
         <svg xmlns=" http://www.w3.org/2000/svg">
             <path />
@@ -22,66 +17,85 @@
     </nav>
     <article id="top">
         <div class="subheading">Part 10: Conclusions</div>
-        <h1>What we know so far and where
-            we are going</h1>
+        <h1>The best era of basketball analytics</h1>
 
         <p><span>Rui Qiu</span></p>
-        <p><span>Updated on 2021-11-28.</span></p>
+        <p><span>Updated on 2021-12-04.</span></p>
         <br>
 
-        <p><span>So here we are, at the end of the semester, a finished data science portfolio to some extent. In
-                contrast, the original list of data science that we are genuinely interested in still remains
-                unanswered. In
-                this part of the portfolio, we will to take a look at the portfolio on a large scale and try to conclude
+        <p><span>
+                For this part of the portfolio, the goal is to take a look at the portfolio at a higher level and try to
+                conclude
                 the
-                progress with what has been learned and what needs to be changed.</span></p>
+                progress with what has been learned and what needs to be changed.</span>
+        </p>
 
-        <hr>
+        <p><span>First start with some bads:</span></p>
 
-        <section id="revisit">
-            <h2>Revisit</h2>
+        <p><span>The portfolio began with raising ten questions out of a topic of interest that we plan to take
+                a
+                deep
+                dive into. The issue is that there was no information about how the upcoming
+                chapters
+                would pan out. For example, the original questions included analyzing how to quantify a team’s
+                offensive
+                system, while no actual part of this portfolio left the space to conduct, such an analysis. Most
+                parts
+                contained several restrictions such as fitting in three different models and visualizing the
+                results. So this
+                brings out the second point: what has been learned.</span></p>
 
-            <p><span>The portfolio began with raising ten questions out of a topic of interest that we plan to take a
-                    deep
-                    dive into. The issue is that we were at a place where we had no information about how the upcoming
-                    chapters
-                    would pan out. For example, the original questions included analyzing how to quantify a team’s
-                    offensive
-                    system, while no actual part of this portfolio left the space to conduct, such an analysis. Most
-                    parts
-                    contained several restrictions such as fitting in three different models and visualizing the
-                    results. So this
-                    brings out the second point: what we have learned.</span></p>
-        </section>
+        <p><span>Without a doubt, the portfolio serves well as a collection of showcasing various basic, both
+                supervised
+                and unsupervised, machine learning algorithms. Additionally, some experimental trials with
+                visualization
+                packages make the portfolio more vivid and interpretable. But even so, the whole procedure of
+                how
+                each model
+                is built does not imitate the real-world machine learning or data science workflow. Each chapter
+                is
+                more or
+                less like a showcase of what I can do with this sort of model, rather than sophisticatedly
+                tuning
+                the model
+                towards a correct direction.</span></p>
 
-        <section id="reality">
-            <h2>Reality</h2>
+        <p><span>Still, there are some highlights which are worth mentioning:</span></p>
 
-            <p><span>Without a doubt, the portfolio serves well as a collection of showcasing various basic, both
-                    supervised
-                    and unsupervised, machine learning algorithms. Additionally, some experimental trials with
-                    visualization
-                    packages make the portfolio more vivid and interpretable. But even so, the whole procedure of how
-                    each model
-                    is built does not imitate the real-world machine learning or data science workflow. Each chapter is
-                    more or
-                    less like a showcase of what I can do with this sort of model, rather than sophisticatedly tuning
-                    the model
-                    towards a correct direction.</span></p>
-        </section>
+        <ol>
+            <li><span>The ambiguity of modern basketball players' positions was successfully captured in the clustering.
+                    Players tend to be more versatile than their predecessors 20 years ago. (Although a comparison would
+                    make this statement more sound.) Specifically, big players shoot more from perimeter, and tall
+                    guards with defensive ability guarding multiple positions are favored. The versatility, for sure,
+                    elevates the tactical possibilities.</span></li>
+            <li><span>The play-by-play data indeed works well to train a predictive model. It's a pity the in-game
+                    tracking now largely prefers result-based in-game events. That is to say, people care about if the
+                    shot leads to scoring or not. That also means lots of details like pick-and-roll, covering, box-out,
+                    hustle, etc. are omitted because they probably do not affect the team score directly. However, if
+                    the in-game events can be imagined as a series of consequential but more general events, these
+                    omitted details will play their parts. Back to the topic, the prediction based on a static in-game
+                    scenario, which is the exact moment when the shot is taken, accurately reflects the fact if the shot
+                    is made. Therefore, a team's analyst could provide some informative insights of their opponent teams
+                    ahead of every game.</span></li>
+            <li><span>The stats vary team by team, season by season. Even a player could evolve or recede in the span of
+                    his career. All the probability calculation are conditional. That's also the beauty of modern
+                    sports, everything is evolving all the time. By looking at a single player or a team, one can easily
+                    tell the rises and falls through his playing stats. And what's always fascinating is that there are
+                    always stories behind those numbers.</span></li>
+        </ol>
 
-        <section id="reflection">
-            <h2>Reflection</h2>
-
-            <p><span>So what’s next? For me, the completion of such a portfolio is never the end, as most of the
-                    questions
-                    remained unanswered. I am still eager to have my own idea about how modern basketball evolves,
-                    craving a
-                    better approach to apprehend today’s games. And hopefully, these will be the following topics I am
-                    going to
-                    address in my </span><a href='https://qrui.xyz'><span>blog</span></a><span>.</span></p>
-            <p>&nbsp;</p>
-        </section>
+        <p><span>So what’s next? The completion of such a portfolio is never the end, as most of the
+                questions
+                remained unanswered. Modern basketball has never ceased to evolve, and the data scientists
+                should
+                always being
+                craving a
+                better approach to apprehend today’s games. As the in-game tracking data becomes more and more detailed
+                and accessible at the same time, the recap of tactics won't be limited to a two-dimensional tactic board
+                any more. Moreover, data will be utilized to more aspects of running a professional basketball team such
+                as team development, player scouting, even the ticket price setting and other operational decision
+                making. In short, this is the best era of basketball analytics.</span></p>
+        <p>&nbsp;</p>
 
         <footer class="footer">
             <p>Copyright &copy; 2021 <a href="https://qrui.xyz">Ruì Qiū</a></p>
